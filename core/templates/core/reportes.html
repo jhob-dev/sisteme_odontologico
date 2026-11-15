@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Reportes - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <h2>Sistema de Reportes</h2>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <h3>📊</h3>
+            <p>Reporte General</p>
+            <a href="{% url 'reporte_general' %}" class="btn btn-success" style="margin-top: 10px;">Ver Reporte</a>
+        </div>
+        <div class="stat-card">
+            <h3>👥</h3>
+            <p>Reporte de Pacientes</p>
+            <a href="{% url 'reporte_pacientes' %}" class="btn" style="margin-top: 10px;">Ver Reporte</a>
+        </div>
+        <div class="stat-card">
+            <h3>📅</h3>
+            <p>Reporte de Citas</p>
+            <a href="{% url 'reporte_citas' %}" class="btn" style="margin-top: 10px;">Ver Reporte</a>
+        </div>
+        <div class="stat-card">
+            <h3>💰</h3>
+            <p>Reporte de Pagos</p>
+            <a href="{% url 'reporte_pagos' %}" class="btn" style="margin-top: 10px;">Ver Reporte</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Descripción de Reportes</h3>
+        <div style="margin-top: 20px;">
+            <div style="margin-bottom: 20px;">
+                <h4>📊 Reporte General</h4>
+                <p>Visión general del sistema con estadísticas totales y del mes actual.</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4>👥 Reporte de Pacientes</h4>
+                <p>Listado completo de pacientes con sus citas pendientes y pagos realizados.</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4>📅 Reporte de Citas</h4>
+                <p>Reporte de citas con filtros por rango de fechas y estadísticas por estado.</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4>💰 Reporte de Pagos</h4>
+                <p>Reporte financiero con filtros por rango de fechas y análisis por método de pago.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

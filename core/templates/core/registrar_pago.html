@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Registrar Pago - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <h2>💰 Registrar Nuevo Pago</h2>
+
+    <div class="card">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="form-group">
+                <label for="{{ form.paciente.id_for_label }}">👤 Paciente *</label>
+                {{ form.paciente }}
+                {% if form.paciente.errors %}<small class="field-error">{{ form.paciente.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.cita.id_for_label }}">📅 Cita Asociada (opcional)</label>
+                {{ form.cita }}
+                {% if form.cita.errors %}<small class="field-error">{{ form.cita.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.monto.id_for_label }}">💵 Monto *</label>
+                {{ form.monto }}
+                {% if form.monto.errors %}<small class="field-error">{{ form.monto.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.metodo.id_for_label }}">💳 Método de Pago *</label>
+                {{ form.metodo }}
+                {% if form.metodo.errors %}<small class="field-error">{{ form.metodo.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.tipo.id_for_label }}">📋 Tipo de Pago *</label>
+                {{ form.tipo }}
+                {% if form.tipo.errors %}<small class="field-error">{{ form.tipo.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.estado.id_for_label }}">✅ Estado *</label>
+                {{ form.estado }}
+                {% if form.estado.errors %}<small class="field-error">{{ form.estado.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.observaciones.id_for_label }}">📝 Observaciones</label>
+                {{ form.observaciones }}
+                {% if form.observaciones.errors %}<small class="field-error">{{ form.observaciones.errors }}</small>{% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-success">✅ Registrar Pago</button>
+            <a href="{% url 'lista_pagos' %}" class="btn btn-danger">❌ Cancelar</a>
+        </form>
+    </div>
+{% endblock %}

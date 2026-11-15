@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;">
+        <div>
+            <h2>🏠 Dashboard</h2>
+            <p style="color: #7b1fa2; font-size: 16px;">Bienvenido al sistema de gestión odontológica</p>
+        </div>
+        <a href="{% url 'logout' %}" class="btn btn-danger">🚪 Cerrar Sesión</a>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <div style="font-size: 50px; margin-bottom: 15px;">📅</div>
+            <h3>{{ citas_hoy }}</h3>
+            <p>Citas para hoy</p>
+        </div>
+        <div class="stat-card">
+            <div style="font-size: 50px; margin-bottom: 15px;">👥</div>
+            <h3>{{ pacientes_total }}</h3>
+            <p>Pacientes registrados</p>
+        </div>
+        <div class="stat-card">
+            <div style="font-size: 50px; margin-bottom: 15px;">⏰</div>
+            <h3>{{ citas_pendientes }}</h3>
+            <p>Citas pendientes</p>
+        </div>
+        <div class="stat-card">
+            <div style="font-size: 50px; margin-bottom: 15px;">💰</div>
+            <h3>${{ pagos_mes }}</h3>
+            <p>Pagos este mes</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>🚀 Acciones Rápidas</h3>
+        <div style="margin-top: 25px; display: flex; gap: 15px; flex-wrap: wrap;">
+            <a href="{% url 'crear_paciente' %}" class="btn btn-success">➕ Registrar Paciente</a>
+            <a href="{% url 'crear_cita' %}" class="btn">📅 Agendar Cita</a>
+            <a href="{% url 'registrar_pago' %}" class="btn btn-warning">💳 Registrar Pago</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>📊 Accesos Directos</h3>
+        <div style="margin-top: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <a href="{% url 'lista_pacientes' %}" class="btn">👥 Pacientes</a>
+            <a href="{% url 'lista_citas' %}" class="btn">📅 Citas</a>
+            <a href="{% url 'horario_semanal' %}" class="btn">🗓️ Horario</a>
+            <a href="{% url 'lista_pagos' %}" class="btn">💰 Pagos</a>
+            <a href="{% url 'reportes' %}" class="btn">📈 Reportes</a>
+        </div>
+    </div>
+{% endblock %}

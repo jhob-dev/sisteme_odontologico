@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Reporte de Pacientes - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;" class="no-print">
+        <h2>Reporte de Pacientes</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-success">Imprimir</button>
+            <a href="{% url 'reportes' %}" class="btn">Volver</a>
+        </div>
+    </div>
+
+    {% include 'core/reporte_encabezado.html' with titulo='Reporte de Pacientes' %}
+
+    <div class="reporte-filtros">
+        <div class="reporte-filtro"><strong>Filtro aplicado:</strong> Todos los pacientes activos</div>
+        <div class="reporte-filtro"><strong>Fecha de corte:</strong> {% now "d/m/Y" %}</div>
+    </div>
+
+    <div class="reporte-resumen">
+        <div class="reporte-stat">
+            <span class="valor">{{ total_pacientes }}</span>
+            <span class="etiqueta">Total de Pacientes</span>
+        </div>
+    </div>
+
+    <div class="reporte-seccion">
+        <h4>Listado de Pacientes</h4>
+        <table class="reporte-tabla">
+            <thead>
+                <tr>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Citas Totales</th>
+                    <th>Citas Pendientes</th>
+                    <th>Total Pagado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for paciente in pacientes %}
+                <tr>
+                    <td>{{ paciente.cedula }}</td>
+                    <td>{{ paciente.nombre }}</td>
+                    <td>{{ paciente.apellido }}</td>
+                    <td>{{ paciente.telefono }}</td>
+                    <td>{{ paciente.email|default:"-" }}</td>
+                    <td>{{ paciente.citas_totales }}</td>
+                    <td>{{ paciente.citas_pendientes }}</td>
+                    <td>${{ paciente.total_pagado }}</td>
+                </tr>
+                {% empty %}
+                <tr class="reporte-vacio">
+                    <td colspan="8">No hay pacientes registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include 'core/reporte_pie.html' %}
+{% endblock %}

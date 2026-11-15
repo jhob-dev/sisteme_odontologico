@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Inicio - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <h2>Bienvenido al Sistema de Gestión Odontológica</h2>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <h3>{{ citas_hoy }}</h3>
+            <p>Citas para hoy</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ pacientes_total }}</h3>
+            <p>Pacientes registrados</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ citas_pendientes }}</h3>
+            <p>Citas pendientes</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Acciones Rápidas</h3>
+        <div style="margin-top: 20px;">
+            <a href="{% url 'crear_paciente' %}" class="btn btn-success">Registrar Nuevo Paciente</a>
+            <a href="{% url 'crear_cita' %}" class="btn">Agendar Nueva Cita</a>
+            <a href="{% url 'registrar_pago' %}" class="btn btn-warning">Registrar Pago</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Accesos Directos</h3>
+        <div style="margin-top: 20px;">
+            <a href="{% url 'lista_pacientes' %}" class="btn">Ver Todos los Pacientes</a>
+            <a href="{% url 'lista_citas' %}" class="btn">Ver Todas las Citas</a>
+            <a href="{% url 'horario_semanal' %}" class="btn">Ver Horario Semanal</a>
+        </div>
+    </div>
+{% endblock %}

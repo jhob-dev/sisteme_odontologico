@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido - Consultorio Odontológico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .welcome-container {
+            background: white;
+            padding: 60px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(236, 64, 122, 0.3);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            font-size: 100px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        h1 {
+            color: #880e4f;
+            margin-bottom: 20px;
+            font-size: 42px;
+            font-weight: 700;
+        }
+        p {
+            color: #7b1fa2;
+            margin-bottom: 30px;
+            font-size: 18px;
+            line-height: 1.8;
+        }
+        .btn {
+            display: inline-block;
+            padding: 18px 50px;
+            background: linear-gradient(135deg, #ec407a 0%, #ab47bc 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(236, 64, 122, 0.4);
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(236, 64, 122, 0.5);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 50px;
+        }
+        .feature {
+            padding: 25px;
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            border-radius: 20px;
+            transition: transform 0.3s ease;
+        }
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+        .feature h3 {
+            color: #880e4f;
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .feature p {
+            font-size: 14px;
+            margin-bottom: 0;
+            color: #7b1fa2;
+        }
+        .info-box {
+            background: linear-gradient(135deg, #f8bbd0 0%, #e1bee7 100%);
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 40px;
+            border-left: 5px solid #ec407a;
+        }
+        .info-box h3 {
+            color: #880e4f;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .info-box ul {
+            text-align: left;
+            color: #7b1fa2;
+            padding-left: 20px;
+        }
+        .info-box li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        <div class="logo">🦷</div>
+        <h1>Sistema de Gestión Odontológica</h1>
+        <p>Bienvenido al sistema completo para la gestión de consultorio odontológico. Administre pacientes, citas, historias clínicas y pagos de manera eficiente.</p>
+        
+        <a href="{% url 'login' %}" class="btn">🚀 Iniciar Sesión</a>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">👥</div>
+                <h3>Pacientes</h3>
+                <p>Gestión completa de pacientes con información familiar de contacto</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📅</div>
+                <h3>Citas</h3>
+                <p>Agendamiento inteligente con horario semanal visual</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💰</div>
+                <h3>Pagos</h3>
+                <p>Control financiero con múltiples métodos de pago</p>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>📋 Características del Sistema</h3>
+            <ul>
+                <li>✨ Interfaz moderna y fácil de usar</li>
+                <li>🔒 Sistema de login seguro</li>
+                <li>📊 Reportes detallados y generales</li>
+                <li>🏥 Historias clínicas completas</li>
+                <li>💳 Control de pagos por adelantado y cuotas</li>
+                <li>📅 Vista de horario semanal</li>
+                <li>🔔 Alertas visuales tipo toast</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

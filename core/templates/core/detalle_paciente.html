@@ -1,0 +1,321 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Detalle de Paciente - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; flex-wrap: wrap;">
+        <h2>Detalle del Paciente: {{ paciente.nombre_completo }}</h2>
+        <div>
+            <button type="button" class="btn btn-success" onclick="abrirModalReporte()">🖨️ Imprimir Reporte</button>
+            <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning">✏️ Editar Paciente</a>
+            <a href="{% url 'lista_pacientes' %}" class="btn">Volver a la Lista</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Información Personal</h3>
+        <table>
+            <tr>
+                <th>Cédula:</th>
+                <td>{{ paciente.cedula }}</td>
+            </tr>
+            <tr>
+                <th>Nombre:</th>
+                <td>{{ paciente.nombre }}</td>
+            </tr>
+            <tr>
+                <th>Apellido:</th>
+                <td>{{ paciente.apellido }}</td>
+            </tr>
+            <tr>
+                <th>Teléfono:</th>
+                <td>{{ paciente.telefono }}</td>
+            </tr>
+            <tr>
+                <th>Email:</th>
+                <td>{{ paciente.email|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>Dirección:</th>
+                <td>{% if paciente.direccion and paciente.direccion != 'Ninguno' %}{{ paciente.direccion }}{% else %}-{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Fecha de Registro:</th>
+                <td>{{ paciente.fecha_registro|date:"d/m/Y H:i" }}</td>
+            </tr>
+        </table>
+    </div>
+
+    {% if paciente.nombre_familiar and paciente.nombre_familiar != 'Ninguno' %}
+    <div class="card">
+        <h3>Familiar de Contacto</h3>
+        <table>
+            <tr>
+                <th>Nombre:</th>
+                <td>{{ paciente.nombre_familiar }}</td>
+            </tr>
+            <tr>
+                <th>Teléfono:</th>
+                <td>{% if paciente.telefono_familiar and paciente.telefono_familiar != 'Ninguno' %}{{ paciente.telefono_familiar }}{% else %}-{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Parentesco:</th>
+                <td>{% if paciente.parentesco_familiar and paciente.parentesco_familiar != 'Ninguno' %}{{ paciente.parentesco_familiar }}{% else %}-{% endif %}</td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <h3>Resumen</h3>
+        <table>
+            <tr>
+                <th>Citas Pendientes:</th>
+                <td>{{ citas_pendientes }}</td>
+            </tr>
+            <tr>
+                <th>Total Pagado:</th>
+                <td>${{ total_pagado }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>Historia Clínica</h3>
+            <a href="{% url 'historia_clinica' paciente.id %}" class="btn btn-warning">Actualizar Historia Clínica</a>
+        </div>
+        <table>
+            <tr>
+                <th>Condiciones Médicas Preexistentes:</th>
+                <td>{{ historia.condiciones_medicas|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>Alergias Conocidas:</th>
+                <td>{{ historia.alergias|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>Medicamentos Actuales:</th>
+                <td>{{ historia.medicamentos|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>Antecedentes Familiares:</th>
+                <td>{{ historia.antecedentes_familiares|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>Observaciones Generales:</th>
+                <td>{{ historia.observaciones|default:"-" }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>Tratamientos Realizados</h3>
+            <a href="{% url 'agregar_tratamiento' paciente.id %}" class="btn btn-success">Agregar Tratamiento</a>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 120px;">Fecha</th>
+                        <th style="min-width: 250px;">Descripción</th>
+                        <th style="min-width: 100px;">Diente</th>
+                        <th style="min-width: 100px;">Costo</th>
+                        <th style="min-width: 110px;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tratamiento in tratamientos %}
+                    <tr>
+                        <td>{{ tratamiento.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ tratamiento.descripcion }}</td>
+                        <td>{{ tratamiento.diente|default:"-" }}</td>
+                        <td>${{ tratamiento.costo }}</td>
+                        <td>
+                            {% if tratamiento.completado %}
+                                <span class="badge badge-completada">Completado</span>
+                            {% else %}
+                                <span class="badge badge-pendiente">Pendiente</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No hay tratamientos registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Citas</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 120px;">Fecha</th>
+                        <th style="min-width: 100px;">Hora</th>
+                        <th style="min-width: 120px;">Estado</th>
+                        <th style="min-width: 250px;">Observaciones</th>
+                        <th style="min-width: 100px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas %}
+                    <tr>
+                        <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ cita.hora|time:"H:i" }}</td>
+                        <td>
+                            <span class="badge badge-{{ cita.estado }}">{{ cita.get_estado_display }}</span>
+                        </td>
+                        <td>{{ cita.observaciones|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'editar_cita' cita.id %}" class="btn btn-warning" style="padding: 8px 15px; font-size: 12px;">Editar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No hay citas registradas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 20px;">
+            <a href="{% url 'crear_cita' %}" class="btn btn-success">Agendar Nueva Cita</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Pagos</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 160px;">Fecha</th>
+                        <th style="min-width: 100px;">Monto</th>
+                        <th style="min-width: 150px;">Método</th>
+                        <th style="min-width: 130px;">Tipo</th>
+                        <th style="min-width: 100px;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pago in pagos %}
+                    <tr>
+                        <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
+                        <td>${{ pago.monto }}</td>
+                        <td>{{ pago.get_metodo_display }}</td>
+                        <td>{{ pago.get_tipo_display }}</td>
+                        <td>
+                            <span class="badge badge-{{ pago.estado }}">{{ pago.get_estado_display }}</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No hay pagos registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 20px;">
+            <a href="{% url 'registrar_pago' %}" class="btn btn-success">Registrar Nuevo Pago</a>
+        </div>
+    </div>
+
+    <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.activo {
+            display: flex;
+        }
+        .modal-reporte {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .modal-reporte h3 {
+            margin-top: 0;
+            color: #880e4f;
+        }
+        .modal-reporte .opciones {
+            margin: 15px 0;
+        }
+        .modal-reporte .opcion {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #f8bbd0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .modal-reporte .opcion:hover {
+            background: #fdf2f7;
+        }
+        .modal-reporte .opcion input {
+            width: auto;
+        }
+        .modal-reporte .acciones {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+
+    <div class="modal-overlay" id="modalReporte">
+        <div class="modal-reporte">
+            <h3>🖨️ Imprimir Reporte del Paciente</h3>
+            <p>Paciente: <strong>{{ paciente.nombre_completo }}</strong> ({{ paciente.cedula }})</p>
+            <p>Seleccione qué información desea incluir en el reporte:</p>
+            <form id="formReporte" method="GET" action="{% url 'reporte_paciente' paciente.id %}" target="_blank">
+                <div class="opciones">
+                    <label class="opcion"><input type="checkbox" name="seccion" value="paciente" checked> Datos del paciente</label>
+                    <label class="opcion"><input type="checkbox" name="seccion" value="historia"> Historia clínica</label>
+                    <label class="opcion"><input type="checkbox" name="seccion" value="tratamientos"> Tratamientos</label>
+                    <label class="opcion"><input type="checkbox" name="seccion" value="citas"> Citas</label>
+                    <label class="opcion"><input type="checkbox" name="seccion" value="pagos"> Pagos</label>
+                </div>
+                <div class="acciones">
+                    <button type="button" class="btn" onclick="cerrarModalReporte()">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Generar e Imprimir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function abrirModalReporte() {
+            document.getElementById('modalReporte').classList.add('activo');
+        }
+        function cerrarModalReporte() {
+            document.getElementById('modalReporte').classList.remove('activo');
+        }
+        document.getElementById('modalReporte').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModalReporte();
+            }
+        });
+        document.getElementById('formReporte').addEventListener('submit', function(e) {
+            if (!this.querySelector('input[name="seccion"]:checked')) {
+                e.preventDefault();
+                showToast('Seleccione al menos una sección para imprimir.', 'warning');
+            }
+        });
+    </script>
+{% endblock %}

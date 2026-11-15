@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Horario Semanal - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <h2>🗓️ Horario Semanal</h2>
+    <p>Semana del {{ inicio_formateado }} al {{ fin_formateado }}</p>
+
+    <div class="table-responsive">
+        <div class="horario-grid">
+            {% for dia in dias_semana %}
+            <div class="horario-day">
+                <h4>{{ dia.nombre_dia }}</h4>
+                <p style="text-align: center; color: #7b1fa2; margin-bottom: 15px; font-size: 14px;">
+                    {{ dia.fecha_formateada }}
+                </p>
+
+                {% for cita in dia.citas %}
+                <div class="cita-item">
+                    <strong>{{ cita.hora|time:"H:i" }}</strong><br>
+                    {{ cita.paciente.nombre_completo }}<br>
+                    <span class="badge badge-{{ cita.estado }}">{{ cita.get_estado_display }}</span>
+                </div>
+                {% empty %}
+                <p style="text-align: center; color: #bdc3c7; font-size: 12px;">Sin citas</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="{% url 'crear_cita' %}" class="btn btn-success">➕ Agendar Nueva Cita</a>
+    </div>
+{% endblock %}

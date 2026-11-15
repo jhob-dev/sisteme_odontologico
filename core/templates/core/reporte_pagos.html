@@ -1,0 +1,99 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Reporte de Pagos - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;" class="no-print">
+        <h2>Reporte de Pagos</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-success">Imprimir</button>
+            <a href="{% url 'reportes' %}" class="btn">Volver</a>
+        </div>
+    </div>
+
+    <div class="card no-print">
+        <h3>Filtrar por Rango de Fechas</h3>
+        <form method="GET" style="margin-top: 20px;">
+            <div style="display: flex; gap: 20px; align-items: flex-end;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="fecha_inicio">Fecha Inicio:</label>
+                    <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ fecha_inicio }}">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="fecha_fin">Fecha Fin:</label>
+                    <input type="date" id="fecha_fin" name="fecha_fin" value="{{ fecha_fin }}">
+                </div>
+                <button type="submit" class="btn">Filtrar</button>
+                <a href="{% url 'reporte_pagos' %}" class="btn btn-danger">Limpiar</a>
+            </div>
+        </form>
+    </div>
+
+    {% include 'core/reporte_encabezado.html' with titulo='Reporte de Pagos' %}
+
+    <div class="reporte-filtros">
+        <div class="reporte-filtro"><strong>Fecha inicio:</strong> {{ fecha_inicio|default:"Sin filtro" }}</div>
+        <div class="reporte-filtro"><strong>Fecha fin:</strong> {{ fecha_fin|default:"Sin filtro" }}</div>
+    </div>
+
+    <div class="reporte-resumen">
+        <div class="reporte-stat">
+            <span class="valor">{{ total_pagos }}</span>
+            <span class="etiqueta">Total de Pagos</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">${{ total_monto }}</span>
+            <span class="etiqueta">Monto Total</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ pagos_efectivo }}</span>
+            <span class="etiqueta">Pagos en Efectivo</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ pagos_tarjeta }}</span>
+            <span class="etiqueta">Pagos con Tarjeta</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ pagos_transferencia }}</span>
+            <span class="etiqueta">Pagos por Transferencia</span>
+        </div>
+    </div>
+
+    <div class="reporte-seccion">
+        <h4>Listado de Pagos</h4>
+        <table class="reporte-tabla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Paciente</th>
+                    <th>Cédula</th>
+                    <th>Monto</th>
+                    <th>Método</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pago in pagos %}
+                <tr>
+                    <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
+                    <td>{{ pago.paciente.nombre_completo }}</td>
+                    <td>{{ pago.paciente.cedula }}</td>
+                    <td>${{ pago.monto }}</td>
+                    <td>{{ pago.get_metodo_display }}</td>
+                    <td>{{ pago.get_tipo_display }}</td>
+                    <td>{{ pago.get_estado_display }}</td>
+                    <td>{{ pago.observaciones|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr class="reporte-vacio">
+                    <td colspan="8">No hay pagos en el rango seleccionado</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include 'core/reporte_pie.html' %}
+{% endblock %}

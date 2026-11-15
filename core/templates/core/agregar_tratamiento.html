@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Agregar Tratamiento - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <h2>Agregar Tratamiento a: {{ paciente.nombre_completo }}</h2>
+
+    <div class="card">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="form-group">
+                <label for="{{ form.cita.id_for_label }}">Cita Asociada (opcional)</label>
+                {{ form.cita }}
+                {% if form.cita.errors %}<small class="field-error">{{ form.cita.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.descripcion.id_for_label }}">Descripción del Tratamiento *</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}<small class="field-error">{{ form.descripcion.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.diente.id_for_label }}">Número de Diente (opcional)</label>
+                {{ form.diente }}
+                {% if form.diente.errors %}<small class="field-error">{{ form.diente.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.costo.id_for_label }}">Costo</label>
+                {{ form.costo }}
+                {% if form.costo.errors %}<small class="field-error">{{ form.costo.errors }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.completado.id_for_label }}" style="display: flex; align-items: center; gap: 10px;">
+                    {{ form.completado }} Tratamiento Completado
+                </label>
+                {% if form.completado.errors %}<small class="field-error">{{ form.completado.errors }}</small>{% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-success">Agregar Tratamiento</button>
+            <a href="{% url 'historia_clinica' paciente.id %}" class="btn btn-danger">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}

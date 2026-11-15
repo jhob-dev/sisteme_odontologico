@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Citas - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>📅 Lista de Citas</h2>
+        <a href="{% url 'crear_cita' %}" class="btn btn-success">➕ Agendar Nueva Cita</a>
+    </div>
+
+    <div class="card">
+        <form method="GET" style="margin-bottom: 20px;">
+            <label for="estado">Filtrar por estado:</label>
+            <select id="estado" name="estado" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                <option value="pendiente" {% if estado_filter == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="confirmada" {% if estado_filter == 'confirmada' %}selected{% endif %}>Confirmada</option>
+                <option value="completada" {% if estado_filter == 'completada' %}selected{% endif %}>Completada</option>
+                <option value="cancelada" {% if estado_filter == 'cancelada' %}selected{% endif %}>Cancelada</option>
+            </select>
+        </form>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 200px;">Paciente</th>
+                        <th style="min-width: 120px;">Cédula</th>
+                        <th style="min-width: 120px;">Fecha</th>
+                        <th style="min-width: 100px;">Hora</th>
+                        <th style="min-width: 120px;">Estado</th>
+                        <th style="min-width: 250px;">Observaciones</th>
+                        <th style="min-width: 100px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas %}
+                    <tr>
+                        <td>{{ cita.paciente.nombre_completo }}</td>
+                        <td>{{ cita.paciente.cedula }}</td>
+                        <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ cita.hora|time:"H:i" }}</td>
+                        <td>
+                            <span class="badge badge-{{ cita.estado }}">{{ cita.get_estado_display }}</span>
+                        </td>
+                        <td>{{ cita.observaciones|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'editar_cita' cita.id %}" class="btn btn-warning" style="padding: 8px 15px; font-size: 12px;">Editar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center;">No hay citas registradas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Expediente del Paciente - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;" class="no-print">
+        <h2>Expediente del Paciente</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-success">Imprimir</button>
+            <a href="{% url 'detalle_paciente' paciente.id %}" class="btn">Volver al Detalle</a>
+        </div>
+    </div>
+
+    {% include 'core/reporte_encabezado.html' with titulo='Expediente del Paciente' %}
+
+    <div class="reporte-filtros">
+        <div class="reporte-filtro"><strong>Paciente:</strong> {{ paciente.nombre_completo }}</div>
+        <div class="reporte-filtro"><strong>Cédula:</strong> {{ paciente.cedula }}</div>
+        <div class="reporte-filtro"><strong>Contenido del documento:</strong> {{ contenido|join:", " }}</div>
+    </div>
+
+    {% if 'paciente' in secciones %}
+    <div class="reporte-seccion">
+        <h4>Datos del Paciente</h4>
+        <table class="reporte-tabla">
+            <tbody>
+                <tr>
+                    <th style="width: 220px;">Nombre completo</th>
+                    <td>{{ paciente.nombre_completo }}</td>
+                    <th style="width: 220px;">Cédula</th>
+                    <td>{{ paciente.cedula }}</td>
+                </tr>
+                <tr>
+                    <th>Teléfono</th>
+                    <td>{{ paciente.telefono }}</td>
+                    <th>Email</th>
+                    <td>{{ paciente.email|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>Dirección</th>
+                    <td colspan="3">{% if paciente.direccion and paciente.direccion != 'Ninguno' %}{{ paciente.direccion }}{% else %}-{% endif %}</td>
+                </tr>
+                <tr>
+                    <th>Fecha de registro</th>
+                    <td>{{ paciente.fecha_registro|date:"d/m/Y H:i" }}</td>
+                    <th>Estado</th>
+                    <td>{% if paciente.activo %}Activo{% else %}Inactivo{% endif %}</td>
+                </tr>
+                {% if paciente.nombre_familiar and paciente.nombre_familiar != 'Ninguno' %}
+                <tr>
+                    <th>Familiar de contacto</th>
+                    <td>{{ paciente.nombre_familiar }}</td>
+                    <th>Parentesco</th>
+                    <td>{% if paciente.parentesco_familiar and paciente.parentesco_familiar != 'Ninguno' %}{{ paciente.parentesco_familiar }}{% else %}-{% endif %}</td>
+                </tr>
+                <tr>
+                    <th>Teléfono del familiar</th>
+                    <td colspan="3">{% if paciente.telefono_familiar and paciente.telefono_familiar != 'Ninguno' %}{{ paciente.telefono_familiar }}{% else %}-{% endif %}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="reporte-resumen">
+        <div class="reporte-stat">
+            <span class="valor">{{ citas_pendientes }}</span>
+            <span class="etiqueta">Citas Pendientes</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">${{ total_pagado }}</span>
+            <span class="etiqueta">Total Pagado</span>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if 'historia' in secciones %}
+    <div class="reporte-seccion">
+        <h4>Historia Clínica</h4>
+        <table class="reporte-tabla">
+            <tbody>
+                <tr>
+                    <th style="width: 260px;">Condiciones médicas preexistentes</th>
+                    <td>{{ historia.condiciones_medicas|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>Alergias conocidas</th>
+                    <td>{{ historia.alergias|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>Medicamentos actuales</th>
+                    <td>{{ historia.medicamentos|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>Antecedentes familiares</th>
+                    <td>{{ historia.antecedentes_familiares|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>Observaciones generales</th>
+                    <td>{{ historia.observaciones|default:"-" }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if 'tratamientos' in secciones %}
+    <div class="reporte-seccion">
+        <h4>Tratamientos Realizados</h4>
+        <table class="reporte-tabla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Diente</th>
+                    <th>Costo</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tratamiento in tratamientos %}
+                <tr>
+                    <td>{{ tratamiento.fecha|date:"d/m/Y" }}</td>
+                    <td>{{ tratamiento.descripcion }}</td>
+                    <td>{{ tratamiento.diente|default:"-" }}</td>
+                    <td>${{ tratamiento.costo }}</td>
+                    <td>{% if tratamiento.completado %}Completado{% else %}Pendiente{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr class="reporte-vacio">
+                    <td colspan="5">No hay tratamientos registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if 'citas' in secciones %}
+    <div class="reporte-seccion">
+        <h4>Citas</h4>
+        <table class="reporte-tabla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Estado</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas %}
+                <tr>
+                    <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                    <td>{{ cita.hora|time:"H:i" }}</td>
+                    <td>{{ cita.get_estado_display }}</td>
+                    <td>{{ cita.observaciones|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr class="reporte-vacio">
+                    <td colspan="4">No hay citas registradas</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if 'pagos' in secciones %}
+    <div class="reporte-seccion">
+        <h4>Pagos</h4>
+        <table class="reporte-tabla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Monto</th>
+                    <th>Método</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pago in pagos %}
+                <tr>
+                    <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
+                    <td>${{ pago.monto }}</td>
+                    <td>{{ pago.get_metodo_display }}</td>
+                    <td>{{ pago.get_tipo_display }}</td>
+                    <td>{{ pago.get_estado_display }}</td>
+                    <td>{{ pago.observaciones|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr class="reporte-vacio">
+                    <td colspan="6">No hay pagos registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="reporte-resumen" style="margin-top: 15px;">
+            <div class="reporte-stat">
+                <span class="valor">${{ total_pagado }}</span>
+                <span class="etiqueta">Total Pagado</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% include 'core/reporte_pie.html' %}
+{% endblock %}

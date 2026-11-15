@@ -1,0 +1,72 @@
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-group">
+            <label for="{{ form.cedula.id_for_label }}">📋 Cédula de Identidad *</label>
+            {{ form.cedula }}
+            {% if form.cedula.errors %}<small class="field-error">{{ form.cedula.errors }}</small>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.nombre.id_for_label }}">👤 Nombre *</label>
+            {{ form.nombre }}
+            {% if form.nombre.errors %}<small class="field-error">{{ form.nombre.errors }}</small>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.apellido.id_for_label }}">👤 Apellido *</label>
+            {{ form.apellido }}
+            {% if form.apellido.errors %}<small class="field-error">{{ form.apellido.errors }}</small>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.telefono.id_for_label }}">📞 Teléfono *</label>
+            {{ form.telefono }}
+            {% if form.telefono.errors %}<small class="field-error">{{ form.telefono.errors }}</small>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">📧 Correo Electrónico</label>
+            {{ form.email }}
+            {% if form.email.errors %}<small class="field-error">{{ form.email.errors }}</small>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.direccion.id_for_label }}">🏠 Dirección de Domicilio</label>
+            {{ form.direccion }}
+            {% if form.direccion.errors %}<small class="field-error">{{ form.direccion.errors }}</small>{% endif %}
+        </div>
+
+        <hr style="margin: 25px 0; border: none; border-top: 2px solid #f8bbd0;">
+        <h3 style="color: #880e4f; margin-bottom: 20px;">👨‍👩‍👧 Información de Familiar de Contacto (Opcional)</h3>
+
+        <div class="form-group">
+            <label for="{{ form.nombre_familiar.id_for_label }}">👤 Nombre del Familiar</label>
+            {{ form.nombre_familiar }}
+            {% if form.nombre_familiar.errors %}<small class="field-error">{{ form.nombre_familiar.errors }}</small>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.telefono_familiar.id_for_label }}">📞 Teléfono del Familiar</label>
+            {{ form.telefono_familiar }}
+            {% if form.telefono_familiar.errors %}<small class="field-error">{{ form.telefono_familiar.errors }}</small>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.parentesco_familiar.id_for_label }}">🔗 Parentesco</label>
+            {{ form.parentesco_familiar }}
+            {% if form.parentesco_familiar.errors %}<small class="field-error">{{ form.parentesco_familiar.errors }}</small>{% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            {% if form.instance.pk %}✅ Actualizar Paciente{% else %}✅ Registrar Paciente{% endif %}
+        </button>
+        {% if form.instance.pk %}
+            <a href="{% url 'detalle_paciente' form.instance.id %}" class="btn btn-danger">❌ Cancelar</a>
+        {% else %}
+            <a href="{% url 'lista_pacientes' %}" class="btn btn-danger">❌ Cancelar</a>
+        {% endif %}
+    </form>
+</div>

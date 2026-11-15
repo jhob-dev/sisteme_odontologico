@@ -1,0 +1,8 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Editar Paciente - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <h2>✏️ Editar Paciente: {{ paciente.nombre_completo }}</h2>
+    {% include 'core/_paciente_form.html' %}
+{% endblock %}

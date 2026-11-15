@@ -1,0 +1,80 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Reporte General - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;" class="no-print">
+        <h2>Reporte General</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-success">Imprimir</button>
+            <a href="{% url 'reportes' %}" class="btn">Volver a Reportes</a>
+        </div>
+    </div>
+
+    {% include 'core/reporte_encabezado.html' with titulo='Reporte General del Sistema' %}
+
+    <div class="reporte-filtros">
+        <div class="reporte-filtro"><strong>Período:</strong> Histórico completo</div>
+        <div class="reporte-filtro"><strong>Fecha de generación:</strong> {% now "d/m/Y" %}</div>
+    </div>
+
+    <div class="reporte-resumen">
+        <div class="reporte-stat">
+            <span class="valor">{{ pacientes_total }}</span>
+            <span class="etiqueta">Total Pacientes</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ citas_total }}</span>
+            <span class="etiqueta">Total Citas</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ citas_completadas }}</span>
+            <span class="etiqueta">Citas Completadas</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ citas_pendientes }}</span>
+            <span class="etiqueta">Citas Pendientes</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">${{ pagos_total }}</span>
+            <span class="etiqueta">Total Pagado Histórico</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ tratamientos_total }}</span>
+            <span class="etiqueta">Total Tratamientos</span>
+        </div>
+    </div>
+
+    <div class="reporte-seccion">
+        <h4>Estadísticas del Mes Actual</h4>
+        <table class="reporte-tabla" style="max-width: 500px;">
+            <thead>
+                <tr>
+                    <th>Concepto</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Citas este mes</td>
+                    <td>{{ citas_mes }}</td>
+                </tr>
+                <tr>
+                    <td>Pagos este mes</td>
+                    <td>${{ pagos_mes }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="reporte-seccion no-print">
+        <h4>Acciones</h4>
+        <div>
+            <a href="{% url 'reporte_pacientes' %}" class="btn">Ver Reporte de Pacientes</a>
+            <a href="{% url 'reporte_citas' %}" class="btn">Ver Reporte de Citas</a>
+            <a href="{% url 'reporte_pagos' %}" class="btn">Ver Reporte de Pagos</a>
+        </div>
+    </div>
+
+    {% include 'core/reporte_pie.html' %}
+{% endblock %}

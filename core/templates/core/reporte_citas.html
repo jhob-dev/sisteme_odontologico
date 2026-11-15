@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Reporte de Citas - Consultorio Odontológico{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;" class="no-print">
+        <h2>Reporte de Citas</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-success">Imprimir</button>
+            <a href="{% url 'reportes' %}" class="btn">Volver</a>
+        </div>
+    </div>
+
+    <div class="card no-print">
+        <h3>Filtrar por Rango de Fechas</h3>
+        <form method="GET" style="margin-top: 20px;">
+            <div style="display: flex; gap: 20px; align-items: flex-end;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="fecha_inicio">Fecha Inicio:</label>
+                    <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ fecha_inicio }}">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="fecha_fin">Fecha Fin:</label>
+                    <input type="date" id="fecha_fin" name="fecha_fin" value="{{ fecha_fin }}">
+                </div>
+                <button type="submit" class="btn">Filtrar</button>
+                <a href="{% url 'reporte_citas' %}" class="btn btn-danger">Limpiar</a>
+            </div>
+        </form>
+    </div>
+
+    {% include 'core/reporte_encabezado.html' with titulo='Reporte de Citas' %}
+
+    <div class="reporte-filtros">
+        <div class="reporte-filtro"><strong>Fecha inicio:</strong> {{ fecha_inicio|default:"Sin filtro" }}</div>
+        <div class="reporte-filtro"><strong>Fecha fin:</strong> {{ fecha_fin|default:"Sin filtro" }}</div>
+    </div>
+
+    <div class="reporte-resumen">
+        <div class="reporte-stat">
+            <span class="valor">{{ total_citas }}</span>
+            <span class="etiqueta">Total de Citas</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ citas_completadas }}</span>
+            <span class="etiqueta">Citas Completadas</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ citas_pendientes }}</span>
+            <span class="etiqueta">Citas Pendientes</span>
+        </div>
+        <div class="reporte-stat">
+            <span class="valor">{{ citas_canceladas }}</span>
+            <span class="etiqueta">Citas Canceladas</span>
+        </div>
+    </div>
+
+    <div class="reporte-seccion">
+        <h4>Listado de Citas</h4>
+        <table class="reporte-tabla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Paciente</th>
+                    <th>Cédula</th>
+                    <th>Estado</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas %}
+                <tr>
+                    <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                    <td>{{ cita.hora|time:"H:i" }}</td>
+                    <td>{{ cita.paciente.nombre_completo }}</td>
+                    <td>{{ cita.paciente.cedula }}</td>
+                    <td>{{ cita.get_estado_display }}</td>
+                    <td>{{ cita.observaciones|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr class="reporte-vacio">
+                    <td colspan="6">No hay citas en el rango seleccionado</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include 'core/reporte_pie.html' %}
+{% endblock %}
