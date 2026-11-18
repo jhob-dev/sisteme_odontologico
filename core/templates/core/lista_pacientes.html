@@ -14,8 +14,7 @@
                 <thead>
                     <tr>
                         <th style="min-width: 120px;">Cédula</th>
-                        <th style="min-width: 150px;">Nombre</th>
-                        <th style="min-width: 150px;">Apellido</th>
+                        <th style="min-width: 280px;">Nombre</th>
                         <th style="min-width: 130px;">Teléfono</th>
                         <th style="min-width: 200px;">Email</th>
                         <th style="min-width: 130px;">Citas Pendientes</th>
@@ -28,8 +27,9 @@
                     {% for paciente in pacientes %}
                     <tr>
                         <td>{{ paciente.cedula }}</td>
-                        <td><a href="{% url 'detalle_paciente' paciente.id %}" style="font-weight: bold;">{{ paciente.nombre }}</a></td>
-                        <td><a href="{% url 'detalle_paciente' paciente.id %}" style="font-weight: bold;">{{ paciente.apellido }}</a></td>
+                        <td class="celda-paciente">
+                            <a href="{% url 'detalle_paciente' paciente.id %}" class="enlace-paciente" style="font-weight: bold;">{{ paciente.nombre_completo }}</a>
+                        </td>
                         <td>{{ paciente.telefono }}</td>
                         <td>{{ paciente.email|default:"-" }}</td>
                         <td>{{ paciente.citas_pendientes }}</td>
@@ -47,7 +47,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="9" style="text-align: center;">No hay pacientes registrados</td>
+                        <td colspan="8" style="text-align: center;">No hay pacientes registrados</td>
                     </tr>
                     {% endfor %}
                 </tbody>

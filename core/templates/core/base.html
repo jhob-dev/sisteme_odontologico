@@ -134,6 +134,17 @@
         tr:hover {
             background-color: #fce4ec;
         }
+        .celda-paciente {
+            position: relative;
+        }
+        .celda-paciente .enlace-paciente::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
         .table-responsive {
             overflow-x: auto;
             border-radius: 15px;
@@ -251,6 +262,33 @@
             border-radius: 10px;
             font-size: 12px;
             border-left: 3px solid #ec407a;
+        }
+        footer {
+            background: linear-gradient(135deg, #ec407a 0%, #ab47bc 100%);
+            color: white;
+            text-align: center;
+            padding: 25px 20px;
+            margin-top: 40px;
+            box-shadow: 0 -4px 15px rgba(236, 64, 122, 0.3);
+            font-size: 14px;
+        }
+        footer .footer-titulo {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+        footer .footer-nombres {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px 25px;
+            font-weight: 500;
+        }
+        footer .footer-nombres span {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
         }
         .toast-container {
             position: fixed;
@@ -440,7 +478,7 @@
             color: #999999;
         }
         @media print {
-            nav, header, .no-print {
+            nav, header, footer, .no-print {
                 display: none !important;
             }
             body {
@@ -479,6 +517,19 @@
     <main class="container">
         {% block content %}{% endblock %}
     </main>
+    <footer>
+        <div class="container">
+            <p class="footer-titulo">Diseñado por los estudiantes del Programa Nacional de Formación en Informática (PNFI) Trayecto III:</p>
+            <div class="footer-nombres">
+                <span>Corvo Rossy</span>
+                <span>Flores Josiel</span>
+                <span>López German</span>
+                <span>Marcano Jhobanni</span>
+                <span>Rodríguez Jesus</span>
+                <span>Vallejo Zaidymar</span>
+            </div>
+        </div>
+    </footer>
     
     <div class="toast-container" id="toastContainer"></div>
     
