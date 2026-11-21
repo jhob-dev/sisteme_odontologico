@@ -197,3 +197,27 @@ class ConsultorioTests(TestCase):
         self.assertEqual(str(pago.monto), '75.25')
         self.assertEqual(pago.metodo, 'transferencia')
         self.assertEqual(pago.tipo, 'cuota')
+
+    def test_historia_clinica_guarda_antecedentes_y_habitos(self):
+        response = self.client.post(reverse('historia_clinica', args=[self.paciente.id]), data={
+            'antecedentes_personales': ['Diabetes', 'Asma', 'Fumador'],
+            'habitos_parafuncionales': ['Bruxismo', 'Onicofagia'],
+            'observaciones_paciente': 'Paciente ansioso',
+        })
+
+        self.assertRedirects(response, reverse('historia_clinica', args=[self.paciente.id]))
+        historia = HistoriaClinica.objects.get(paciente=self.paciente)
+        self.assertEqual(historia.antecedentes_personales, ['Diabetes', 'Asma', 'Fumador'])
+        self.assertEqual(historia.habitos_parafuncionales, ['Bruxismo', 'Onicofagia'])
+        self.assertEqual(historia.observaciones_paciente, 'Paciente ansioso')
+
+    def test_historia_clinica_permite_secciones_vacias(self):
+        response = self.client.post(reverse('historia_clinica', args=[self.paciente.id]), data={
+            'observaciones_paciente': '',
+        })
+
+        self.assertRedirects(response, reverse('historia_clinica', args=[self.paciente.id]))
+        historia = HistoriaClinica.objects.get(paciente=self.paciente)
+        self.assertEqual(historia.antecedentes_personales, [])
+        self.assertEqual(historia.habitos_parafuncionales, [])
+        self.assertEqual(historia.observaciones_paciente, '')

@@ -8,38 +8,48 @@
         <a href="{% url 'detalle_paciente' paciente.id %}" class="btn">Volver al Detalle</a>
     </div>
 
+    <form method="POST">
+        {% csrf_token %}
     <div class="card">
-        <h3>Información Médica</h3>
-        <form method="POST">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="condiciones_medicas">Condiciones Médicas Preexistentes</label>
-                <textarea id="condiciones_medicas" name="condiciones_medicas">{{ historia.condiciones_medicas|default:"" }}</textarea>
+        <h3>Observaciones del Paciente</h3>
+        <div class="form-group">
+            <input type="text" id="observaciones_paciente" name="observaciones_paciente"
+                       value="{{ historia.observaciones_paciente|default:'' }}"
+                       maxlength="255" placeholder="Observaciones del paciente (máx. 255 caracteres)">
             </div>
-            
-            <div class="form-group">
-                <label for="alergias">Alergias Conocidas</label>
-                <textarea id="alergias" name="alergias">{{ historia.alergias|default:"" }}</textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="medicamentos">Medicamentos Actuales</label>
-                <textarea id="medicamentos" name="medicamentos">{{ historia.medicamentos|default:"" }}</textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="antecedentes_familiares">Antecedentes Familiares</label>
-                <textarea id="antecedentes_familiares" name="antecedentes_familiares">{{ historia.antecedentes_familiares|default:"" }}</textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="observaciones">Observaciones Generales</label>
-                <textarea id="observaciones" name="observaciones">{{ historia.observaciones|default:"" }}</textarea>
-            </div>
-            
-            <button type="submit" class="btn btn-success">Actualizar Historia Clínica</button>
-        </form>
     </div>
+
+    <div class="card">
+        <h3>Antecedentes Personales</h3>
+        <p style="color: #7b1fa2; font-size: 14px; margin-bottom: 15px;">Seleccione los antecedentes personales que apliquen (puede dejar vacías):</p>
+        <div class="check-grid">
+            {% for opcion in antecedentes_opciones %}
+            <label class="check-item">
+                <input type="checkbox" name="antecedentes_personales" value="{{ opcion }}"
+                       {% if opcion in historia.antecedentes_personales %}checked{% endif %}>
+                <span>{{ opcion }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Hábitos Parafuncionales</h3>
+        <p style="color: #7b1fa2; font-size: 14px; margin-bottom: 15px;">Seleccione los hábitos parafuncionales que apliquen (puede dejar vacías):</p>
+        <div class="check-grid">
+            {% for opcion in habitos_opciones %}
+            <label class="check-item">
+                <input type="checkbox" name="habitos_parafuncionales" value="{{ opcion }}"
+                       {% if opcion in historia.habitos_parafuncionales %}checked{% endif %}>
+                <span>{{ opcion }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 25px;">
+            <button type="submit" class="btn btn-success">Actualizar Historia Clínica</button>
+        </div>
+    </div>
+    </form>
 
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">

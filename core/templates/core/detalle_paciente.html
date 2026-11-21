@@ -87,24 +87,28 @@
         </div>
         <table>
             <tr>
-                <th>Condiciones Médicas Preexistentes:</th>
-                <td>{{ historia.condiciones_medicas|default:"-" }}</td>
+                <th>Antecedentes Personales:</th>
+                <td>
+                    {% for antecedente in historia.antecedentes_personales %}
+                        <span class="badge badge-confirmada">{{ antecedente }}</span>
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </td>
             </tr>
             <tr>
-                <th>Alergias Conocidas:</th>
-                <td>{{ historia.alergias|default:"-" }}</td>
+                <th>Hábitos Parafuncionales:</th>
+                <td>
+                    {% for habito in historia.habitos_parafuncionales %}
+                        <span class="badge badge-pendiente">{{ habito }}</span>
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </td>
             </tr>
             <tr>
-                <th>Medicamentos Actuales:</th>
-                <td>{{ historia.medicamentos|default:"-" }}</td>
-            </tr>
-            <tr>
-                <th>Antecedentes Familiares:</th>
-                <td>{{ historia.antecedentes_familiares|default:"-" }}</td>
-            </tr>
-            <tr>
-                <th>Observaciones Generales:</th>
-                <td>{{ historia.observaciones|default:"-" }}</td>
+                <th>Observaciones del Paciente:</th>
+                <td>{{ historia.observaciones_paciente|default:"-" }}</td>
             </tr>
         </table>
     </div>

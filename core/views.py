@@ -289,21 +289,17 @@ def editar_cita(request, cita_id):
 def historia_clinica(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
     historia, created = HistoriaClinica.objects.get_or_create(paciente=paciente)
-    for campo in [
-        'condiciones_medicas', 'alergias', 'medicamentos',
-        'antecedentes_familiares', 'observaciones',
-    ]:
-        if getattr(historia, campo) in (None, 'Ninguno'):
-            setattr(historia, campo, '')
+    if historia.antecedentes_personales is None:
+        historia.antecedentes_personales = []
+    if historia.habitos_parafuncionales is None:
+        historia.habitos_parafuncionales = []
     tratamientos = historia.tratamientos.all()
 
     if request.method == 'POST':
         try:
-            historia.condiciones_medicas = request.POST.get('condiciones_medicas', '')
-            historia.alergias = request.POST.get('alergias', '')
-            historia.medicamentos = request.POST.get('medicamentos', '')
-            historia.antecedentes_familiares = request.POST.get('antecedentes_familiares', '')
-            historia.observaciones = request.POST.get('observaciones', '')
+            historia.antecedentes_personales = request.POST.getlist('antecedentes_personales')
+            historia.habitos_parafuncionales = request.POST.getlist('habitos_parafuncionales')
+            historia.observaciones_paciente = request.POST.get('observaciones_paciente', '').strip()[:255]
             historia.save()
             messages.success(request, 'Historia clínica actualizada exitosamente.')
             return redirect('historia_clinica', paciente_id=paciente.id)
@@ -314,6 +310,8 @@ def historia_clinica(request, paciente_id):
         'paciente': paciente,
         'historia': historia,
         'tratamientos': tratamientos,
+        'antecedentes_opciones': HistoriaClinica.ANTECEDENTES_PERSONALES_OPCIONES,
+        'habitos_opciones': HistoriaClinica.HABITOS_PARAFUNCIONALES_OPCIONES,
     }
     return render(request, 'core/historia_clinica.html', context)
 

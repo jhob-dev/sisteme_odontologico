@@ -7,7 +7,7 @@ Sistema de gestión odontológica desarrollado en Django con base de datos SQLit
 - **Gestión de Pacientes**: Registro completo de pacientes con información personal (nombre, apellido, cédula, teléfono, email, dirección)
 - **Familiar de Contacto**: Registro opcional de familiar de contacto con nombre, teléfono y parentesco
 - **Gestión de Citas**: Agendamiento de citas médicas con fecha, hora y estados (pendiente, confirmada, completada, cancelada)
-- **Historias Clínicas**: Registro detallado de condiciones médicas, alergias, medicamentos y tratamientos realizados
+- **Historias Clínicas**: Registro de antecedentes personales, hábitos parafuncionales, observaciones y tratamientos realizados
 - **Control de Pagos**: Registro de pagos con diferentes métodos (efectivo, tarjeta, transferencia, cheque) y tipos (completo, adelantado, cuotas)
 - **Vista de Pacientes**: Lista de pacientes con estado de citas pendientes y pagos realizados
 - **Horario Semanal**: Vista visual de todas las citas de la semana organizadas por día
@@ -278,11 +278,9 @@ Para acceder, usa el superusuario creado durante la instalación.
 
 ### HistoriaClínica
 - paciente (FK, OneToOne)
-- condiciones_médicas
-- alergias
-- medicamentos
-- antecedentes_familiares
-- observaciones
+- antecedentes_personales
+- habitos_parafuncionales
+- observaciones_paciente
 - fecha_creación
 - fecha_actualización
 

@@ -145,6 +145,43 @@
             bottom: 0;
             left: 0;
         }
+        .check-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: #fdf2f7;
+            border: 2px solid #f8bbd0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #880e4f;
+            transition: all 0.3s ease;
+        }
+        .check-item:hover {
+            border-color: #ec407a;
+            background: #fce4ec;
+            transform: translateY(-2px);
+        }
+        .check-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #ec407a;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .check-item input[type="checkbox"]:checked + span {
+            font-weight: 600;
+        }
+        .check-item:has(input[type="checkbox"]:checked) {
+            border-color: #ec407a;
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+        }
         .table-responsive {
             overflow-x: auto;
             border-radius: 15px;

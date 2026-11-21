@@ -80,24 +80,20 @@
         <table class="reporte-tabla">
             <tbody>
                 <tr>
-                    <th style="width: 260px;">Condiciones médicas preexistentes</th>
-                    <td>{{ historia.condiciones_medicas|default:"-" }}</td>
+                    <th>Antecedentes personales</th>
+                    <td>
+                        {% for antecedente in historia.antecedentes_personales %}{{ antecedente }}{% if not forloop.last %}, {% endif %}{% empty %}-{% endfor %}
+                    </td>
                 </tr>
                 <tr>
-                    <th>Alergias conocidas</th>
-                    <td>{{ historia.alergias|default:"-" }}</td>
+                    <th>Hábitos parafuncionales</th>
+                    <td>
+                        {% for habito in historia.habitos_parafuncionales %}{{ habito }}{% if not forloop.last %}, {% endif %}{% empty %}-{% endfor %}
+                    </td>
                 </tr>
                 <tr>
-                    <th>Medicamentos actuales</th>
-                    <td>{{ historia.medicamentos|default:"-" }}</td>
-                </tr>
-                <tr>
-                    <th>Antecedentes familiares</th>
-                    <td>{{ historia.antecedentes_familiares|default:"-" }}</td>
-                </tr>
-                <tr>
-                    <th>Observaciones generales</th>
-                    <td>{{ historia.observaciones|default:"-" }}</td>
+                    <th>Observaciones del paciente</th>
+                    <td>{{ historia.observaciones_paciente|default:"-" }}</td>
                 </tr>
             </tbody>
         </table>

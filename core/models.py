@@ -78,21 +78,29 @@ class Cita(models.Model):
 
 
 class HistoriaClinica(models.Model):
+    ANTECEDENTES_PERSONALES_OPCIONES = [
+        'Diabetes', 'Alergias', 'Drogas', 'Cardiopatías', 'ETS',
+        'Anticonceptivos', 'Asma', 'Digestivas', 'COVID-19',
+        'Eruptivas', 'Quirúrgicos', 'Fumador', 'T.E.',
+    ]
+    HABITOS_PARAFUNCIONALES_OPCIONES = [
+        'Onicofagia', 'Quielofagia', 'Succión digital', 'Bruxismo',
+        'Desviación ATM',
+    ]
+
     paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='historia_clinica')
-    condiciones_medicas = models.TextField(
-        blank=True, null=True,
-        help_text="Condiciones médicas preexistentes"
+    antecedentes_personales = models.JSONField(
+        default=list, blank=True,
+        help_text="Antecedentes personales seleccionados"
     )
-    alergias = models.TextField(
-        blank=True, null=True,
-        help_text="Alergias conocidas"
+    habitos_parafuncionales = models.JSONField(
+        default=list, blank=True,
+        help_text="Hábitos parafuncionales seleccionados"
     )
-    medicamentos = models.TextField(
-        blank=True, null=True,
-        help_text="Medicamentos actuales"
+    observaciones_paciente = models.CharField(
+        max_length=255, blank=True, default='',
+        help_text="Observaciones del paciente"
     )
-    antecedentes_familiares = models.TextField(blank=True, null=True)
-    observaciones = models.TextField(blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 
