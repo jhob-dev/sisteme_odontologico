@@ -3,6 +3,7 @@ from datetime import time
 from decimal import Decimal
 
 from django import forms
+from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.utils import timezone
@@ -160,17 +161,19 @@ class PacienteForm(forms.ModelForm):
 class CitaForm(forms.ModelForm):
     class Meta:
         model = Cita
-        fields = ['paciente', 'fecha', 'hora', 'observaciones']
+        fields = ['paciente', 'fecha', 'hora', 'hora_fin', 'observaciones']
         labels = {
             'paciente': 'Paciente',
             'fecha': 'Fecha',
-            'hora': 'Hora',
+            'hora': 'Hora de Inicio',
+            'hora_fin': 'Hora de Fin',
             'observaciones': 'Observaciones',
         }
         widgets = {
             'paciente': forms.Select(attrs={'required': True}),
             'fecha': forms.DateInput(attrs={'type': 'date', 'required': True}),
             'hora': forms.TimeInput(attrs={'type': 'time', 'required': True}),
+            'hora_fin': forms.TimeInput(attrs={'type': 'time', 'required': True}),
             'observaciones': forms.Textarea(attrs={
                 'rows': 3,
                 'placeholder': 'Detalles adicionales de la cita...',
@@ -204,6 +207,48 @@ class CitaForm(forms.ModelForm):
         if hora and not (time(7, 0) <= hora <= time(16, 0)):
             raise ValidationError('La hora debe estar entre las 07:00 a. m. y las 04:00 p. m.')
         return hora
+
+    def clean_hora_fin(self):
+        hora_fin = self.cleaned_data.get('hora_fin')
+        hora = self.cleaned_data.get('hora')
+        if hora_fin and hora and hora_fin <= hora:
+            raise ValidationError('La hora de fin debe ser posterior a la hora de inicio.')
+        return hora_fin
+
+    def clean(self):
+        cleaned_data = super().clean()
+        fecha = cleaned_data.get('fecha')
+        hora = cleaned_data.get('hora')
+        hora_fin = cleaned_data.get('hora_fin')
+        if not (fecha and hora and hora_fin):
+            return cleaned_data
+
+        citas_conflictivas = Cita.objects.filter(
+            fecha=fecha,
+        ).exclude(
+            estado='cancelada',
+        ).exclude(
+            pk=self.instance.pk if self.instance else None,
+        ).filter(
+            hora__lt=hora_fin,
+            hora_fin__gt=hora,
+        ).exclude(
+            hora_fin__lte=models.F('hora'),
+        ).select_related('paciente')
+
+        if citas_conflictivas.exists():
+            conflicto_paciente = citas_conflictivas.filter(
+                paciente=cleaned_data.get('paciente')
+            ).exists() if cleaned_data.get('paciente') else False
+            if conflicto_paciente:
+                raise ValidationError(
+                    'Ese paciente ya tiene una cita agendada en ese horario.'
+                )
+            raise ValidationError(
+                'Ya existe una cita agendada en ese horario. No se puede agendar '
+                'otra cita que se solape con ella.'
+            )
+        return cleaned_data
 
 
 class CitaEstadoForm(forms.ModelForm):

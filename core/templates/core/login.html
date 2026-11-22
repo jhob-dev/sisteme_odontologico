@@ -1,11 +1,46 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Consultorio Odontológico</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-light.woff2" %}') format('woff2');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-regular.woff2" %}') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-medium.woff2" %}') format('woff2');
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-semibold.woff2" %}') format('woff2');
+            font-weight: 600;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-bold.woff2" %}') format('woff2');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
         * {
             margin: 0;
             padding: 0;

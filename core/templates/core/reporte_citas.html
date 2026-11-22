@@ -57,6 +57,7 @@
 
     <div class="reporte-seccion">
         <h4>Listado de Citas</h4>
+        {% include 'core/_busqueda_en_vivo.html' with placeholder='Buscar cita por paciente, cédula, fecha, estado u observaciones...' %}
         <table class="reporte-tabla">
             <thead>
                 <tr>
@@ -70,16 +71,19 @@
             </thead>
             <tbody>
                 {% for cita in citas %}
-                <tr>
+                <tr data-nombre="{{ cita.paciente.nombre }}"
+                    data-apellido="{{ cita.paciente.apellido }}"
+                    data-cedula="{{ cita.paciente.cedula }}"
+                    data-busqueda="{{ cita.paciente.nombre }} {{ cita.paciente.apellido }} {{ cita.paciente.cedula }} {{ cita.fecha|date:'d/m/Y' }} {{ cita.horario }} {{ cita.get_estado_display }} {{ cita.observaciones }}">
                     <td>{{ cita.fecha|date:"d/m/Y" }}</td>
-                    <td>{{ cita.hora|time:"H:i" }}</td>
+                    <td>{{ cita.horario }}</td>
                     <td>{{ cita.paciente.nombre_completo }}</td>
                     <td>{{ cita.paciente.cedula }}</td>
                     <td>{{ cita.get_estado_display }}</td>
                     <td>{{ cita.observaciones|default:"-" }}</td>
                 </tr>
                 {% empty %}
-                <tr class="reporte-vacio">
+                <tr class="reporte-vacio" data-busqueda="">
                     <td colspan="6">No hay citas en el rango seleccionado</td>
                 </tr>
                 {% endfor %}

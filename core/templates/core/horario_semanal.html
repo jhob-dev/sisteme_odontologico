@@ -6,6 +6,19 @@
     <h2>🗓️ Horario Semanal</h2>
     <p>Semana del {{ inicio_formateado }} al {{ fin_formateado }}</p>
 
+    <form method="GET" class="barra-busqueda">
+        {% include 'core/_busqueda.html' %}
+        <button type="submit" class="btn" style="padding: 10px 20px;">🔍 Buscar paciente</button>
+        {% if q %}
+        <a href="{% url 'horario_semanal' %}" class="btn btn-danger" style="padding: 10px 20px;">✖ Limpiar</a>
+        {% endif %}
+    </form>
+    {% if q %}
+    <p style="color: #7b1fa2; margin-bottom: 15px;">
+        Mostrando citas del paciente que coincida con "<strong>{{ q }}</strong>"
+    </p>
+    {% endif %}
+
     <div class="table-responsive">
         <div class="horario-grid">
             {% for dia in dias_semana %}
@@ -16,8 +29,12 @@
                 </p>
 
                 {% for cita in dia.citas %}
-                <div class="cita-item">
-                    <strong>{{ cita.hora|time:"H:i" }}</strong><br>
+                <div class="cita-item"
+                     data-nombre="{{ cita.paciente.nombre }}"
+                     data-apellido="{{ cita.paciente.apellido }}"
+                     data-cedula="{{ cita.paciente.cedula }}"
+                     data-busqueda="{{ cita.paciente.nombre }} {{ cita.paciente.apellido }} {{ cita.paciente.cedula }}">
+                    <strong>{{ cita.horario }}</strong><br>
                     {{ cita.paciente.nombre_completo }}<br>
                     <span class="badge badge-{{ cita.estado }}">{{ cita.get_estado_display }}</span>
                 </div>

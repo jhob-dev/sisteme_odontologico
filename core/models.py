@@ -53,6 +53,7 @@ class Cita(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='citas')
     fecha = models.DateField()
     hora = models.TimeField()
+    hora_fin = models.TimeField()
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
     observaciones = models.TextField(blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -66,6 +67,10 @@ class Cita(models.Model):
 
     def __str__(self):
         return f"{self.paciente.nombre_completo} - {self.fecha} {self.hora}"
+
+    @property
+    def horario(self):
+        return f"{self.hora.strftime('%H:%M')} - {self.hora_fin.strftime('%H:%M')}"
 
     @property
     def esta_pagada(self):
@@ -143,8 +148,8 @@ class Pago(models.Model):
 
     ESTADO_CHOICES = [
         ('pendiente', 'Pendiente'),
-        ('completado', 'Completado'),
-        ('anulado', 'Anulado'),
+        ('pagado', 'Pagado'),
+        ('no_pagado', 'No Pagado'),
     ]
 
     TIPO_CHOICES = [
@@ -158,7 +163,7 @@ class Pago(models.Model):
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     metodo = models.CharField(max_length=20, choices=METODO_CHOICES)
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='completo')
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='completado')
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pagado')
     fecha_pago = models.DateTimeField(default=timezone.now)
     observaciones = models.TextField(blank=True, null=True)
 

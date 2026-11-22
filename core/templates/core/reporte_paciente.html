@@ -19,6 +19,8 @@
         <div class="reporte-filtro"><strong>Contenido del documento:</strong> {{ contenido|join:", " }}</div>
     </div>
 
+    {% include 'core/_busqueda_en_vivo.html' with placeholder='Buscar en todo el expediente: tratamientos, citas o pagos...' %}
+
     {% if 'paciente' in secciones %}
     <div class="reporte-seccion">
         <h4>Datos del Paciente</h4>
@@ -115,7 +117,7 @@
             </thead>
             <tbody>
                 {% for tratamiento in tratamientos %}
-                <tr>
+                <tr data-busqueda="{{ tratamiento.descripcion }} {{ tratamiento.diente }} {{ tratamiento.fecha|date:'d/m/Y' }} {{ tratamiento.costo }} {% if tratamiento.completado %}completado{% else %}pendiente{% endif %}">
                     <td>{{ tratamiento.fecha|date:"d/m/Y" }}</td>
                     <td>{{ tratamiento.descripcion }}</td>
                     <td>{{ tratamiento.diente|default:"-" }}</td>
@@ -123,7 +125,7 @@
                     <td>{% if tratamiento.completado %}Completado{% else %}Pendiente{% endif %}</td>
                 </tr>
                 {% empty %}
-                <tr class="reporte-vacio">
+                <tr class="reporte-vacio" data-busqueda="">
                     <td colspan="5">No hay tratamientos registrados</td>
                 </tr>
                 {% endfor %}
@@ -146,14 +148,14 @@
             </thead>
             <tbody>
                 {% for cita in citas %}
-                <tr>
+                <tr data-busqueda="{{ cita.fecha|date:'d/m/Y' }} {{ cita.horario }} {{ cita.get_estado_display }} {{ cita.observaciones }}">
                     <td>{{ cita.fecha|date:"d/m/Y" }}</td>
-                    <td>{{ cita.hora|time:"H:i" }}</td>
+                    <td>{{ cita.horario }}</td>
                     <td>{{ cita.get_estado_display }}</td>
                     <td>{{ cita.observaciones|default:"-" }}</td>
                 </tr>
                 {% empty %}
-                <tr class="reporte-vacio">
+                <tr class="reporte-vacio" data-busqueda="">
                     <td colspan="4">No hay citas registradas</td>
                 </tr>
                 {% endfor %}
@@ -178,7 +180,7 @@
             </thead>
             <tbody>
                 {% for pago in pagos %}
-                <tr>
+                <tr data-busqueda="{{ pago.fecha_pago|date:'d/m/Y H:i' }} ${{ pago.monto }} {{ pago.get_metodo_display }} {{ pago.get_tipo_display }} {{ pago.get_estado_display }} {{ pago.observaciones }}">
                     <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
                     <td>${{ pago.monto }}</td>
                     <td>{{ pago.get_metodo_display }}</td>
@@ -187,7 +189,7 @@
                     <td>{{ pago.observaciones|default:"-" }}</td>
                 </tr>
                 {% empty %}
-                <tr class="reporte-vacio">
+                <tr class="reporte-vacio" data-busqueda="">
                     <td colspan="6">No hay pagos registrados</td>
                 </tr>
                 {% endfor %}

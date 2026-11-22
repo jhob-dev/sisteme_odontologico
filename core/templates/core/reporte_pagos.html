@@ -61,6 +61,7 @@
 
     <div class="reporte-seccion">
         <h4>Listado de Pagos</h4>
+        {% include 'core/_busqueda_en_vivo.html' with placeholder='Buscar pago por paciente, cédula, método, tipo, estado u observaciones...' %}
         <table class="reporte-tabla">
             <thead>
                 <tr>
@@ -76,7 +77,10 @@
             </thead>
             <tbody>
                 {% for pago in pagos %}
-                <tr>
+                <tr data-nombre="{{ pago.paciente.nombre }}"
+                    data-apellido="{{ pago.paciente.apellido }}"
+                    data-cedula="{{ pago.paciente.cedula }}"
+                    data-busqueda="{{ pago.paciente.nombre }} {{ pago.paciente.apellido }} {{ pago.paciente.cedula }} {{ pago.fecha_pago|date:'d/m/Y H:i' }} ${{ pago.monto }} {{ pago.get_metodo_display }} {{ pago.get_tipo_display }} {{ pago.get_estado_display }} {{ pago.observaciones }}">
                     <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
                     <td>{{ pago.paciente.nombre_completo }}</td>
                     <td>{{ pago.paciente.cedula }}</td>
@@ -87,7 +91,7 @@
                     <td>{{ pago.observaciones|default:"-" }}</td>
                 </tr>
                 {% empty %}
-                <tr class="reporte-vacio">
+                <tr class="reporte-vacio" data-busqueda="">
                     <td colspan="8">No hay pagos en el rango seleccionado</td>
                 </tr>
                 {% endfor %}

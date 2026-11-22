@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum, Q, Count
+from django.db.models import Sum, Q, Count, F
+from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Paciente, Cita, HistoriaClinica, Tratamiento, Pago
@@ -16,6 +17,64 @@ def _parse_date(value):
         return datetime.strptime(value, '%Y-%m-%d').date()
     except (TypeError, ValueError):
         return None
+
+
+def _parse_time(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, '%H:%M').time()
+    except (TypeError, ValueError):
+        return None
+
+
+def _pacientes_con_estadisticas(pacientes):
+    ids = [p.id for p in pacientes]
+    citas_stats = {}
+    for row in (Cita.objects.filter(paciente_id__in=ids)
+                .values('paciente_id')
+                .annotate(
+                    pendientes=Count('id', filter=Q(estado='pendiente')),
+                    total=Count('id'),
+                )):
+        citas_stats[row['paciente_id']] = row
+    pagos_stats = {}
+    for row in (Pago.objects.filter(paciente_id__in=ids, estado='pagado')
+                .values('paciente_id')
+                .annotate(total=Sum('monto'))):
+        pagos_stats[row['paciente_id']] = row['total'] or 0
+    for paciente in pacientes:
+        citas = citas_stats.get(paciente.id, {})
+        paciente.citas_pendientes = citas.get('pendientes', 0)
+        paciente.citas_totales = citas.get('total', 0)
+        paciente.total_pagado = pagos_stats.get(paciente.id, 0)
+        paciente.al_dia = paciente.citas_pendientes == 0
+    return pacientes
+
+
+def _aplicar_busqueda(qs, q, criterio='todos', prefijo=''):
+    q = (q or '').strip()
+    if not q:
+        return qs
+    lookups = {
+        'nombre': f'{prefijo}nombre__icontains',
+        'apellido': f'{prefijo}apellido__icontains',
+        'cedula': f'{prefijo}cedula__icontains',
+    }
+    if criterio in lookups:
+        return qs.filter(**{lookups[criterio]: q})
+    return qs.filter(
+        Q(**{f'{prefijo}nombre__icontains': q})
+        | Q(**{f'{prefijo}apellido__icontains': q})
+        | Q(**{f'{prefijo}cedula__icontains': q})
+    )
+
+
+def _contexto_busqueda(request):
+    return {
+        'q': request.GET.get('q', '').strip(),
+        'criterio': request.GET.get('criterio', 'todos'),
+    }
 
 
 def _validar_rango_fechas(request, fecha_inicio, fecha_fin):
@@ -64,7 +123,7 @@ def dashboard(request):
     pagos_mes = Pago.objects.filter(
         fecha_pago__month=timezone.now().month,
         fecha_pago__year=timezone.now().year,
-        estado='completado'
+        estado='pagado'
     ).aggregate(total=Sum('monto'))['total'] or 0
 
     context = {
@@ -92,22 +151,16 @@ def home(request):
 
 @login_required
 def lista_pacientes(request):
-    pacientes = Paciente.objects.filter(activo=True).prefetch_related(
-        'citas', 'pagos', 'historia_clinica__tratamientos'
-    )
-
-    for paciente in pacientes:
-        citas_pendientes = paciente.citas.filter(estado='pendiente').count()
-        total_pagado = paciente.pagos.filter(estado='completado').aggregate(total=Sum('monto'))['total'] or 0
-        citas_totales = paciente.citas.count()
-
-        paciente.citas_pendientes = citas_pendientes
-        paciente.total_pagado = total_pagado
-        paciente.citas_totales = citas_totales
-        paciente.al_dia = citas_pendientes == 0
+    pacientes = Paciente.objects.filter(activo=True)
+    busqueda = _contexto_busqueda(request)
+    pacientes = _aplicar_busqueda(
+        pacientes, busqueda['q'], busqueda['criterio']
+    ).order_by('apellido', 'nombre')
+    pacientes = _pacientes_con_estadisticas(list(pacientes))
 
     context = {
         'pacientes': pacientes,
+        **busqueda,
     }
     return render(request, 'core/lista_pacientes.html', context)
 
@@ -164,7 +217,7 @@ def detalle_paciente(request, paciente_id):
     pagos = paciente.pagos.all()
     tratamientos = historia.tratamientos.all()
 
-    total_pagado = pagos.filter(estado='completado').aggregate(total=Sum('monto'))['total'] or 0
+    total_pagado = pagos.filter(estado='pagado').aggregate(total=Sum('monto'))['total'] or 0
     citas_pendientes = citas.filter(estado='pendiente').count()
 
     context = {
@@ -193,7 +246,7 @@ def reporte_paciente(request, paciente_id):
     pagos = paciente.pagos.all()
     tratamientos = historia.tratamientos.all()
 
-    total_pagado = pagos.filter(estado='completado').aggregate(total=Sum('monto'))['total'] or 0
+    total_pagado = pagos.filter(estado='pagado').aggregate(total=Sum('monto'))['total'] or 0
     citas_pendientes = citas.filter(estado='pendiente').count()
 
     secciones_labels = {
@@ -253,11 +306,55 @@ def lista_citas(request):
     else:
         estado_filter = None
 
+    busqueda = _contexto_busqueda(request)
+    citas = _aplicar_busqueda(citas, busqueda['q'], busqueda['criterio'], prefijo='paciente__')
+
     context = {
         'citas': citas,
         'estado_filter': estado_filter,
+        **busqueda,
     }
     return render(request, 'core/lista_citas.html', context)
+
+
+@login_required
+def cita_disponibilidad(request):
+    paciente_id = request.GET.get('paciente')
+    fecha = _parse_date(request.GET.get('fecha'))
+    hora = _parse_time(request.GET.get('hora'))
+    hora_fin = _parse_time(request.GET.get('hora_fin'))
+
+    if not (paciente_id and fecha and hora and hora_fin):
+        return JsonResponse({'disponible': True})
+
+    if hora_fin <= hora:
+        return JsonResponse({
+            'disponible': False,
+            'mensaje': 'La hora de fin debe ser posterior a la hora de inicio.',
+        })
+
+    conflictos = (Cita.objects
+                  .filter(fecha=fecha)
+                  .exclude(estado='cancelada')
+                  .filter(hora__lt=hora_fin, hora_fin__gt=hora)
+                  .exclude(hora_fin__lte=F('hora')))
+
+    paciente_conflicto = conflictos.filter(paciente_id=paciente_id).exists()
+    slot_conflicto = conflictos.exclude(paciente_id=paciente_id).exists()
+
+    if paciente_conflicto:
+        return JsonResponse({
+            'disponible': False,
+            'paciente_conflicto': True,
+            'mensaje': 'Ese paciente ya tiene una cita agendada en ese horario.',
+        })
+    if slot_conflicto:
+        return JsonResponse({
+            'disponible': False,
+            'slot_conflicto': True,
+            'mensaje': 'Ya existe una cita agendada en ese horario. No se puede agendar otra cita que se solape con ella.',
+        })
+    return JsonResponse({'disponible': True})
 
 
 @login_required
@@ -377,10 +474,14 @@ def lista_pagos(request):
     else:
         paciente_filter = None
 
+    busqueda = _contexto_busqueda(request)
+    pagos = _aplicar_busqueda(pagos, busqueda['q'], busqueda['criterio'], prefijo='paciente__')
+
     context = {
         'pagos': pagos,
         'pacientes': pacientes,
         'paciente_filter': paciente_filter,
+        **busqueda,
     }
     return render(request, 'core/lista_pagos.html', context)
 
@@ -419,6 +520,11 @@ def horario_semanal(request):
         fecha__range=[inicio_semana, fin_semana]
     ).select_related('paciente').order_by('fecha', 'hora')
 
+    busqueda = _contexto_busqueda(request)
+    citas_semana = _aplicar_busqueda(
+        citas_semana, busqueda['q'], busqueda['criterio'], prefijo='paciente__'
+    )
+
     dias_semana = []
     for i in range(7):
         dia = inicio_semana + timedelta(days=i)
@@ -449,6 +555,7 @@ def horario_semanal(request):
         'inicio_formateado': inicio_formateado,
         'fin_formateado': fin_formateado,
         'dias_semana': dias_semana,
+        **busqueda,
     }
     return render(request, 'core/horario_semanal.html', context)
 
@@ -460,22 +567,12 @@ def reportes(request):
 
 @login_required
 def reporte_pacientes(request):
-    pacientes = Paciente.objects.filter(activo=True).prefetch_related(
-        'citas', 'pagos', 'historia_clinica__tratamientos'
-    )
-
-    for paciente in pacientes:
-        citas_pendientes = paciente.citas.filter(estado='pendiente').count()
-        total_pagado = paciente.pagos.filter(estado='completado').aggregate(total=Sum('monto'))['total'] or 0
-        citas_totales = paciente.citas.count()
-
-        paciente.citas_pendientes = citas_pendientes
-        paciente.total_pagado = total_pagado
-        paciente.citas_totales = citas_totales
+    pacientes = list(Paciente.objects.filter(activo=True).order_by('apellido', 'nombre'))
+    pacientes = _pacientes_con_estadisticas(pacientes)
 
     context = {
         'pacientes': pacientes,
-        'total_pacientes': pacientes.count(),
+        'total_pacientes': len(pacientes),
     }
     return render(request, 'core/reporte_pacientes.html', context)
 
@@ -540,7 +637,7 @@ def reporte_pagos(request):
             pagos = pagos.filter(fecha_pago__date__lte=fecha_fin)
 
     total_pagos = pagos.count()
-    total_monto = pagos.filter(estado='completado').aggregate(total=Sum('monto'))['total'] or 0
+    total_monto = pagos.filter(estado='pagado').aggregate(total=Sum('monto'))['total'] or 0
     pagos_efectivo = pagos.filter(metodo='efectivo').count()
     pagos_tarjeta = pagos.filter(metodo='tarjeta').count()
     pagos_transferencia = pagos.filter(metodo='transferencia').count()
@@ -564,7 +661,7 @@ def reporte_general(request):
     citas_total = Cita.objects.count()
     citas_completadas = Cita.objects.filter(estado='completada').count()
     citas_pendientes = Cita.objects.filter(estado='pendiente').count()
-    pagos_total = Pago.objects.filter(estado='completado').aggregate(total=Sum('monto'))['total'] or 0
+    pagos_total = Pago.objects.filter(estado='pagado').aggregate(total=Sum('monto'))['total'] or 0
     tratamientos_total = Tratamiento.objects.count()
 
     citas_mes = Cita.objects.filter(
@@ -575,7 +672,7 @@ def reporte_general(request):
     pagos_mes = Pago.objects.filter(
         fecha_pago__month=timezone.now().month,
         fecha_pago__year=timezone.now().year,
-        estado='completado'
+        estado='pagado'
     ).aggregate(total=Sum('monto'))['total'] or 0
 
     context = {

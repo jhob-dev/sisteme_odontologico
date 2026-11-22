@@ -1,0 +1,10 @@
+<input type="text" name="q" class="busqueda-input"
+       value="{{ q|default:'' }}"
+       placeholder="Buscar por nombre, apellido o cédula..."
+       autocomplete="off">
+<select name="criterio" class="busqueda-select">
+    <option value="todos" {% if criterio == 'todos' or not criterio %}selected{% endif %}>Nombre, apellido o cédula</option>
+    <option value="nombre" {% if criterio == 'nombre' %}selected{% endif %}>Solo nombre</option>
+    <option value="apellido" {% if criterio == 'apellido' %}selected{% endif %}>Solo apellido</option>
+    <option value="cedula" {% if criterio == 'cedula' %}selected{% endif %}>Solo cédula</option>
+</select>

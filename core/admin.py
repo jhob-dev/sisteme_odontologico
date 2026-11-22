@@ -12,7 +12,7 @@ class PacienteAdmin(admin.ModelAdmin):
 
 @admin.register(Cita)
 class CitaAdmin(admin.ModelAdmin):
-    list_display = ['paciente', 'fecha', 'hora', 'estado', 'esta_pagada']
+    list_display = ['paciente', 'fecha', 'hora', 'hora_fin', 'estado', 'esta_pagada']
     list_filter = ['estado', 'fecha']
     search_fields = ['paciente__nombre', 'paciente__apellido', 'paciente__cedula']
     date_hierarchy = 'fecha'

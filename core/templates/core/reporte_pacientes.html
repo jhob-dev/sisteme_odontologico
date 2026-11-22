@@ -27,6 +27,7 @@
 
     <div class="reporte-seccion">
         <h4>Listado de Pacientes</h4>
+        {% include 'core/_busqueda_en_vivo.html' with placeholder='Buscar paciente por nombre, apellido, cédula, teléfono o email...' %}
         <table class="reporte-tabla">
             <thead>
                 <tr>
@@ -42,7 +43,10 @@
             </thead>
             <tbody>
                 {% for paciente in pacientes %}
-                <tr>
+                <tr data-nombre="{{ paciente.nombre }}"
+                    data-apellido="{{ paciente.apellido }}"
+                    data-cedula="{{ paciente.cedula }}"
+                    data-busqueda="{{ paciente.nombre }} {{ paciente.apellido }} {{ paciente.cedula }} {{ paciente.telefono }} {{ paciente.email }}">
                     <td>{{ paciente.cedula }}</td>
                     <td>{{ paciente.nombre }}</td>
                     <td>{{ paciente.apellido }}</td>
@@ -53,7 +57,7 @@
                     <td>${{ paciente.total_pagado }}</td>
                 </tr>
                 {% empty %}
-                <tr class="reporte-vacio">
+                <tr class="reporte-vacio" data-busqueda="">
                     <td colspan="8">No hay pacientes registrados</td>
                 </tr>
                 {% endfor %}

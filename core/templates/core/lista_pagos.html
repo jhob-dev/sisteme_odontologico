@@ -9,9 +9,9 @@
     </div>
 
     <div class="card">
-        <form method="GET" style="margin-bottom: 20px;">
-            <label for="paciente">Filtrar por paciente:</label>
-            <select id="paciente" name="paciente" onchange="this.form.submit()">
+        <form method="GET" class="barra-busqueda">
+            <label for="paciente" style="margin-bottom: 0; white-space: nowrap;">Filtrar por paciente:</label>
+            <select id="paciente" name="paciente" onchange="this.form.submit()" class="busqueda-select" style="width: auto;">
                 <option value="">Todos</option>
                 {% for paciente in pacientes %}
                 <option value="{{ paciente.id }}" {% if paciente_filter == paciente.id|stringformat:"s" %}selected{% endif %}>
@@ -19,7 +19,18 @@
                 </option>
                 {% endfor %}
             </select>
+            {% include 'core/_busqueda.html' %}
+            <button type="submit" class="btn" style="padding: 10px 20px;">🔍 Buscar</button>
+            {% if q %}
+            <a href="{% url 'lista_pagos' %}" class="btn btn-danger" style="padding: 10px 20px;">✖ Limpiar</a>
+            {% endif %}
         </form>
+        {% if q %}
+        <p style="color: #7b1fa2; margin-bottom: 15px;">
+            Resultados para "<strong>{{ q }}</strong>":
+            <strong>{{ pagos|length }}</strong> pago(s) encontrado(s)
+        </p>
+        {% endif %}
 
         <div class="table-responsive">
             <table>
@@ -37,7 +48,10 @@
                 </thead>
                 <tbody>
                     {% for pago in pagos %}
-                    <tr>
+                    <tr data-nombre="{{ pago.paciente.nombre }}"
+                        data-apellido="{{ pago.paciente.apellido }}"
+                        data-cedula="{{ pago.paciente.cedula }}"
+                        data-busqueda="{{ pago.paciente.nombre }} {{ pago.paciente.apellido }} {{ pago.paciente.cedula }}">
                         <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
                         <td>{{ pago.paciente.nombre_completo }}</td>
                         <td>{{ pago.paciente.cedula }}</td>
@@ -50,7 +64,7 @@
                         <td>{{ pago.observaciones|default:"-" }}</td>
                     </tr>
                     {% empty %}
-                    <tr>
+                    <tr data-busqueda="">
                         <td colspan="8" style="text-align: center;">No hay pagos registrados</td>
                     </tr>
                     {% endfor %}

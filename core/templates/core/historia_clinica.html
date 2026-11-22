@@ -56,6 +56,7 @@
             <h3>Tratamientos Realizados</h3>
             <a href="{% url 'agregar_tratamiento' paciente.id %}" class="btn btn-success">Agregar Tratamiento</a>
         </div>
+        {% include 'core/_busqueda_en_vivo.html' with placeholder='Buscar tratamiento por descripción o diente...' %}
         
         <table>
             <thead>
@@ -69,7 +70,7 @@
             </thead>
             <tbody>
                 {% for tratamiento in tratamientos %}
-                <tr>
+                <tr data-busqueda="{{ tratamiento.descripcion }} {{ tratamiento.diente }} {{ tratamiento.fecha|date:'d/m/Y' }} {{ tratamiento.costo }}">
                     <td>{{ tratamiento.fecha|date:"d/m/Y" }}</td>
                     <td>{{ tratamiento.descripcion }}</td>
                     <td>{{ tratamiento.diente|default:"-" }}</td>
@@ -83,7 +84,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
+                <tr data-busqueda="">
                     <td colspan="5" style="text-align: center;">No hay tratamientos registrados</td>
                 </tr>
                 {% endfor %}

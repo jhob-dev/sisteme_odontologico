@@ -6,7 +6,7 @@ Sistema de gestión odontológica desarrollado en Django con base de datos SQLit
 
 - **Gestión de Pacientes**: Registro completo de pacientes con información personal (nombre, apellido, cédula, teléfono, email, dirección)
 - **Familiar de Contacto**: Registro opcional de familiar de contacto con nombre, teléfono y parentesco
-- **Gestión de Citas**: Agendamiento de citas médicas con fecha, hora y estados (pendiente, confirmada, completada, cancelada)
+- **Gestión de Citas**: Agendamiento de citas médicas con fecha, hora de inicio, hora de fin y estados (pendiente, confirmada, completada, cancelada). Valida que no se agenden citas en horarios solapados
 - **Historias Clínicas**: Registro de antecedentes personales, hábitos parafuncionales, observaciones y tratamientos realizados
 - **Control de Pagos**: Registro de pagos con diferentes métodos (efectivo, tarjeta, transferencia, cheque) y tipos (completo, adelantado, cuotas)
 - **Vista de Pacientes**: Lista de pacientes con estado de citas pendientes y pagos realizados
@@ -156,7 +156,7 @@ También proporciona accesos directos a las acciones más comunes y secciones de
 **Agendar una cita:**
 1. Ve a "Citas" → "Agendar Nueva Cita"
 2. Selecciona un paciente de la lista
-3. Define la fecha y hora
+3. Define la fecha, la hora de inicio y la hora aproximada de fin
 4. Agrega observaciones opcionales
 5. La cita se crea con estado "pendiente" por defecto
 
@@ -270,7 +270,8 @@ Para acceder, usa el superusuario creado durante la instalación.
 ### Cita
 - paciente (FK)
 - fecha
-- hora
+- hora (inicio)
+- hora_fin (fin aproximado)
 - estado (pendiente, confirmada, completada, cancelada)
 - observaciones
 - fecha_creación
@@ -299,7 +300,7 @@ Para acceder, usa el superusuario creado durante la instalación.
 - monto
 - método (efectivo, tarjeta, transferencia, cheque)
 - tipo (completo, adelantado, cuota)
-- estado (pendiente, completado, anulado)
+- estado (pendiente, pagado, no pagado)
 - fecha_pago
 - observaciones
 

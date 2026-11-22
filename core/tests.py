@@ -81,7 +81,7 @@ class ConsultorioTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Paciente.objects.filter(cedula='12a456').exists())
         self.assertContains(response, 'La cédula debe contener solo números')
-        self.assertContains(response, 'El teléfono solo puede contener números')
+        self.assertContains(response, 'El teléfono debe contener solo números')
 
     def test_registrar_paciente_valido_crea_historia_clinica(self):
         response = self.client.post(reverse('crear_paciente'), data=self.datos_paciente(
@@ -120,6 +120,7 @@ class ConsultorioTests(TestCase):
             'paciente': self.paciente.id,
             'fecha': 'fecha-invalida',
             'hora': '09:00',
+            'hora_fin': '10:00',
             'observaciones': '',
         })
         self.assertEqual(response.status_code, 200)
@@ -129,16 +130,97 @@ class ConsultorioTests(TestCase):
             paciente=self.paciente,
             fecha=date(2026, 11, 10),
             hora=time(9, 0),
+            hora_fin=time(10, 0),
             estado='pendiente',
         )
         response = self.client.post(reverse('crear_cita'), data={
             'paciente': self.paciente.id,
             'fecha': '2026-11-10',
             'hora': '09:00',
+            'hora_fin': '10:00',
             'observaciones': '',
         })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Cita.objects.count(), 1)
+
+    def test_crear_cita_rechaza_horarios_solapados(self):
+        otro = Paciente.objects.create(
+            cedula='55555555',
+            nombre='Otro',
+            apellido='Paciente',
+            telefono='04241112233',
+        )
+        Cita.objects.create(
+            paciente=self.paciente,
+            fecha=date(2026, 12, 1),
+            hora=time(10, 0),
+            hora_fin=time(11, 0),
+            estado='pendiente',
+        )
+
+        response = self.client.post(reverse('crear_cita'), data={
+            'paciente': otro.id,
+            'fecha': '2026-12-01',
+            'hora': '10:30',
+            'hora_fin': '11:30',
+            'observaciones': 'Prueba',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Ya existe una cita agendada en ese horario')
+        self.assertEqual(Cita.objects.count(), 1)
+
+        response = self.client.post(reverse('crear_cita'), data={
+            'paciente': self.paciente.id,
+            'fecha': '2026-12-01',
+            'hora': '10:30',
+            'hora_fin': '11:30',
+            'observaciones': 'Prueba',
+        })
+        self.assertContains(response, 'ya tiene una cita agendada en ese horario')
+
+        response = self.client.post(reverse('crear_cita'), data={
+            'paciente': otro.id,
+            'fecha': '2026-12-01',
+            'hora': '15:00',
+            'hora_fin': '16:00',
+            'observaciones': 'Prueba',
+        })
+        self.assertRedirects(response, reverse('lista_citas'))
+        self.assertEqual(Cita.objects.count(), 2)
+
+    def test_cita_disponibilidad_endpoint(self):
+        Cita.objects.create(
+            paciente=self.paciente,
+            fecha=date(2026, 12, 2),
+            hora=time(9, 0),
+            hora_fin=time(10, 0),
+            estado='pendiente',
+        )
+        otro = Paciente.objects.create(
+            cedula='55555555',
+            nombre='Otro',
+            apellido='Paciente',
+            telefono='04241112233',
+        )
+        libre = self.client.get(reverse('cita_disponibilidad'), {
+            'paciente': otro.id, 'fecha': '2026-12-02',
+            'hora': '11:00', 'hora_fin': '12:00',
+        })
+        self.assertTrue(libre.json()['disponible'])
+
+        ocupado = self.client.get(reverse('cita_disponibilidad'), {
+            'paciente': otro.id, 'fecha': '2026-12-02',
+            'hora': '09:30', 'hora_fin': '10:30',
+        })
+        data = ocupado.json()
+        self.assertFalse(data['disponible'])
+        self.assertTrue(data['slot_conflicto'])
+
+        mismo_paciente = self.client.get(reverse('cita_disponibilidad'), {
+            'paciente': self.paciente.id, 'fecha': '2026-12-02',
+            'hora': '09:30', 'hora_fin': '10:30',
+        })
+        self.assertTrue(mismo_paciente.json()['paciente_conflicto'])
 
     def test_agregar_tratamiento_rechaza_diente_con_letras(self):
         response = self.client.post(reverse('agregar_tratamiento', args=[self.paciente.id]), data={
@@ -164,6 +246,7 @@ class ConsultorioTests(TestCase):
             paciente=otro,
             fecha=date(2026, 11, 11),
             hora=time(10, 0),
+            hora_fin=time(11, 0),
             estado='completada',
         )
 
@@ -173,7 +256,7 @@ class ConsultorioTests(TestCase):
             'monto': '50.00',
             'metodo': 'efectivo',
             'tipo': 'completo',
-            'estado': 'completado',
+            'estado': 'pagado',
             'observaciones': '',
         })
 
@@ -188,7 +271,7 @@ class ConsultorioTests(TestCase):
             'monto': '75.25',
             'metodo': 'transferencia',
             'tipo': 'cuota',
-            'estado': 'completado',
+            'estado': 'pagado',
             'observaciones': 'Pago de prueba',
         })
 

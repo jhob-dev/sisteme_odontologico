@@ -7,7 +7,7 @@
 
     {% if tiene_pacientes %}
     <div class="card">
-        <form method="POST">
+        <form method="POST" id="formCita">
             {% csrf_token %}
             {{ form.non_field_errors }}
 
@@ -23,10 +23,18 @@
                 {% if form.fecha.errors %}<small class="field-error">{{ form.fecha.errors }}</small>{% endif %}
             </div>
 
-            <div class="form-group">
-                <label for="{{ form.hora.id_for_label }}">⏰ Hora *</label>
-                {{ form.hora }}
-                {% if form.hora.errors %}<small class="field-error">{{ form.hora.errors }}</small>{% endif %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div class="form-group">
+                    <label for="{{ form.hora.id_for_label }}">⏰ Hora de Inicio *</label>
+                    {{ form.hora }}
+                    {% if form.hora.errors %}<small class="field-error">{{ form.hora.errors }}</small>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.hora_fin.id_for_label }}">⏱️ Hora de Fin *</label>
+                    {{ form.hora_fin }}
+                    {% if form.hora_fin.errors %}<small class="field-error">{{ form.hora_fin.errors }}</small>{% endif %}
+                </div>
             </div>
 
             <div class="form-group">
@@ -35,7 +43,9 @@
                 {% if form.observaciones.errors %}<small class="field-error">{{ form.observaciones.errors }}</small>{% endif %}
             </div>
 
-            <button type="submit" class="btn btn-success">✅ Agendar Cita</button>
+            <div id="estadoDisponibilidad" style="margin-bottom: 15px; font-weight: 500;"></div>
+
+            <button type="submit" class="btn btn-success" id="btnAgendarCita">✅ Agendar Cita</button>
             <a href="{% url 'lista_citas' %}" class="btn btn-danger">❌ Cancelar</a>
         </form>
     </div>
@@ -47,4 +57,88 @@
         <a href="{% url 'crear_paciente' %}" class="btn btn-success">➕ Registrar Nuevo Paciente</a>
     </div>
     {% endif %}
+
+    <script>
+        (function() {
+            const form = document.getElementById('formCita');
+            if (!form) {
+                return;
+            }
+            const btn = document.getElementById('btnAgendarCita');
+            const estadoDiv = document.getElementById('estadoDisponibilidad');
+            let ultimaConsulta = 0;
+            let temporizador = null;
+
+            function obtenerValor(nombre) {
+                const campo = form.querySelector('[name="' + nombre + '"]');
+                return campo ? campo.value : '';
+            }
+
+            function actualizarEstado(texto, tipo) {
+                estadoDiv.textContent = texto || '';
+                estadoDiv.style.color = tipo === 'error' ? '#c62828' : (tipo === 'ok' ? '#2e7d32' : '#7b1fa2');
+            }
+
+            function verificarDisponibilidad() {
+                const paciente = obtenerValor('paciente');
+                const fecha = obtenerValor('fecha');
+                const hora = obtenerValor('hora');
+                const horaFin = obtenerValor('hora_fin');
+
+                if (!paciente || !fecha || !hora || !horaFin) {
+                    actualizarEstado('', 'info');
+                    btn.disabled = false;
+                    return;
+                }
+
+                const params = new URLSearchParams({
+                    paciente: paciente,
+                    fecha: fecha,
+                    hora: hora,
+                    hora_fin: horaFin,
+                });
+
+                fetch('{% url "cita_disponibilidad" %}?' + params.toString(), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.disponible) {
+                        actualizarEstado('✓ El horario está disponible.', 'ok');
+                        btn.disabled = false;
+                    } else {
+                        actualizarEstado('⚠ ' + (data.mensaje || 'El horario no está disponible.'), 'error');
+                        btn.disabled = true;
+                        showToast(data.mensaje || 'Ese horario ya no está disponible.', 'error');
+                    }
+                })
+                .catch(function() {
+                    actualizarEstado('', 'info');
+                    btn.disabled = false;
+                });
+            }
+
+            function programarVerificacion() {
+                const ahora = Date.now();
+                const espera = Math.max(0, 400 - (ahora - ultimaConsulta));
+                clearTimeout(temporizador);
+                temporizador = setTimeout(function() {
+                    ultimaConsulta = Date.now();
+                    verificarDisponibilidad();
+                }, espera);
+            }
+
+            ['paciente', 'fecha', 'hora', 'hora_fin'].forEach(function(nombre) {
+                const campo = form.querySelector('[name="' + nombre + '"]');
+                if (campo) {
+                    campo.addEventListener('change', programarVerificacion);
+                    campo.addEventListener('input', programarVerificacion);
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                verificarDisponibilidad();
+            });
+        })();
+    </script>
 {% endblock %}

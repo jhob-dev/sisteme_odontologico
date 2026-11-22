@@ -118,6 +118,7 @@
             <h3>Tratamientos Realizados</h3>
             <a href="{% url 'agregar_tratamiento' paciente.id %}" class="btn btn-success">Agregar Tratamiento</a>
         </div>
+        {% include 'core/_busqueda_en_vivo.html' with placeholder='Buscar tratamiento por descripción o diente...' %}
         <div class="table-responsive">
             <table>
                 <thead>
@@ -131,7 +132,7 @@
                 </thead>
                 <tbody>
                     {% for tratamiento in tratamientos %}
-                    <tr>
+                    <tr data-busqueda="{{ tratamiento.descripcion }} {{ tratamiento.diente }} {{ tratamiento.fecha|date:'d/m/Y' }} {{ tratamiento.costo }}">
                         <td>{{ tratamiento.fecha|date:"d/m/Y" }}</td>
                         <td>{{ tratamiento.descripcion }}</td>
                         <td>{{ tratamiento.diente|default:"-" }}</td>
@@ -145,7 +146,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
+                    <tr data-busqueda="">
                         <td colspan="5" style="text-align: center;">No hay tratamientos registrados</td>
                     </tr>
                     {% endfor %}
@@ -156,6 +157,7 @@
 
     <div class="card">
         <h3>Citas</h3>
+        {% include 'core/_busqueda_en_vivo.html' with placeholder='Buscar cita por fecha, estado u observaciones...' %}
         <div class="table-responsive">
             <table>
                 <thead>
@@ -169,9 +171,9 @@
                 </thead>
                 <tbody>
                     {% for cita in citas %}
-                    <tr>
+                    <tr data-busqueda="{{ cita.fecha|date:'d/m/Y' }} {{ cita.horario }} {{ cita.get_estado_display }} {{ cita.observaciones }}">
                         <td>{{ cita.fecha|date:"d/m/Y" }}</td>
-                        <td>{{ cita.hora|time:"H:i" }}</td>
+                        <td>{{ cita.horario }}</td>
                         <td>
                             <span class="badge badge-{{ cita.estado }}">{{ cita.get_estado_display }}</span>
                         </td>
@@ -181,7 +183,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
+                    <tr data-busqueda="">
                         <td colspan="5" style="text-align: center;">No hay citas registradas</td>
                     </tr>
                     {% endfor %}
@@ -195,6 +197,7 @@
 
     <div class="card">
         <h3>Pagos</h3>
+        {% include 'core/_busqueda_en_vivo.html' with placeholder='Buscar pago por fecha, método, tipo, estado u observaciones...' %}
         <div class="table-responsive">
             <table>
                 <thead>
@@ -208,7 +211,7 @@
                 </thead>
                 <tbody>
                     {% for pago in pagos %}
-                    <tr>
+                    <tr data-busqueda="{{ pago.fecha_pago|date:'d/m/Y H:i' }} ${{ pago.monto }} {{ pago.get_metodo_display }} {{ pago.get_tipo_display }} {{ pago.get_estado_display }} {{ pago.observaciones }}">
                         <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
                         <td>${{ pago.monto }}</td>
                         <td>{{ pago.get_metodo_display }}</td>
@@ -218,7 +221,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
+                    <tr data-busqueda="">
                         <td colspan="5" style="text-align: center;">No hay pagos registrados</td>
                     </tr>
                     {% endfor %}

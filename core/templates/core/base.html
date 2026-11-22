@@ -1,11 +1,46 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Consultorio Odontológico{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-light.woff2" %}') format('woff2');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-regular.woff2" %}') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-medium.woff2" %}') format('woff2');
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-semibold.woff2" %}') format('woff2');
+            font-weight: 600;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Poppins';
+            src: url('{% static "fonts/poppins-bold.woff2" %}') format('woff2');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -269,6 +304,14 @@
             background-color: #66bb6a;
             color: white;
         }
+        .badge-pagado {
+            background-color: #66bb6a;
+            color: white;
+        }
+        .badge-no_pagado {
+            background-color: #ef5350;
+            color: white;
+        }
         .badge-cancelada {
             background-color: #ef5350;
             color: white;
@@ -514,6 +557,92 @@
             font-size: 12px;
             color: #999999;
         }
+        .barra-busqueda {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .barra-busqueda .busqueda-input {
+            flex: 1;
+            min-width: 220px;
+            max-width: 420px;
+        }
+        .barra-busqueda .busqueda-select {
+            width: auto;
+            min-width: 140px;
+        }
+        .busqueda-sin-resultados {
+            background: white;
+            border: 2px dashed #f8bbd0;
+            border-radius: 20px;
+            padding: 35px 30px;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #7b1fa2;
+        }
+        .busqueda-sin-resultados .icono {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .busqueda-sin-resultados strong {
+            color: #880e4f;
+        }
+        .busqueda-sin-resultados .sugerencia {
+            font-size: 14px;
+            margin-top: 8px;
+            color: #9c27b0;
+        }
+        /* ===== Skeleton loaders ===== */
+        .skeleton {
+            background: linear-gradient(90deg, #fce4ec 25%, #f8bbd0 50%, #fce4ec 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.4s ease-in-out infinite;
+            border-radius: 12px;
+        }
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .skeleton-titulo {
+            height: 34px;
+            width: 320px;
+            max-width: 80%;
+            margin-bottom: 25px;
+        }
+        .skeleton-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(236, 64, 122, 0.15);
+            border: 1px solid rgba(236, 64, 122, 0.1);
+        }
+        .skeleton-linea {
+            height: 18px;
+            margin-bottom: 14px;
+        }
+        .skeleton-tabla {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .skeleton-fila {
+            display: flex;
+            gap: 15px;
+        }
+        .skeleton-fila > div {
+            flex: 1;
+            height: 22px;
+        }
+        .vista-cargando {
+            animation: vistaFadeIn 0.35s ease-out;
+        }
+        @keyframes vistaFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         @media print {
             nav, header, footer, .no-print {
                 display: none !important;
@@ -646,11 +775,176 @@
             }, 5000);
         }
         
+        function mostrarSkeleton() {
+            const main = document.querySelector('main.container');
+            if (!main || main.querySelector('.skeleton-titulo')) {
+                return;
+            }
+            main.innerHTML = `
+                <div class="skeleton skeleton-titulo"></div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-linea" style="width: 40%;"></div>
+                    <div class="skeleton skeleton-linea" style="width: 90%;"></div>
+                    <div class="skeleton skeleton-linea" style="width: 85%;"></div>
+                    <div class="skeleton skeleton-linea" style="width: 75%;"></div>
+                    <div class="skeleton-tabla" style="margin-top: 20px;">
+                        ${'<div class="skeleton-fila">' + '<div class="skeleton"></div>'.repeat(5) + '</div>'.repeat(6)}
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-linea" style="width: 30%;"></div>
+                    <div class="skeleton-tabla">
+                        ${'<div class="skeleton-fila">' + '<div class="skeleton"></div>'.repeat(4) + '</div>'.repeat(4)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function precargarVistas() {
+            const urls = new Set();
+            document.querySelectorAll('nav a[href], main a.btn[href], .card a.btn[href]').forEach(function(a) {
+                const href = a.getAttribute('href');
+                if (href && href.startsWith('/') && !href.startsWith('/logout') && !href.startsWith('/admin')) {
+                    urls.add(href);
+                }
+            });
+            urls.forEach(function(url) {
+                const link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.href = url;
+                link.as = 'document';
+                document.head.appendChild(link);
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const enlace = e.target.closest('a[href]');
+            if (!enlace) {
+                return;
+            }
+            const href = enlace.getAttribute('href');
+            const esInterno = href && (href.startsWith('/') || href.startsWith(window.location.origin));
+            const mismaPagina = enlace.target === '_self' || !enlace.target;
+            const noEsAncla = !href.startsWith('#') && href !== 'javascript:void(0)';
+            if (esInterno && mismaPagina && noEsAncla && !enlace.hasAttribute('download')) {
+                mostrarSkeleton();
+            }
+        }, true);
+
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            const abreOtraPestana = form.target === '_blank' || form.target === '_new';
+            if (form.tagName === 'FORM' && !abreOtraPestana && (form.method || 'get').toLowerCase() === 'get') {
+                mostrarSkeleton();
+            }
+        }, true);
+
+        function normalizarBusqueda(texto) {
+            return (texto || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function inicializarBusquedaEnVivo() {
+            document.querySelectorAll('input[name="q"]').forEach(function(input) {
+                const contenedor = input.closest('form') || input.closest('.barra-busqueda');
+                if (!contenedor || contenedor.dataset.busquedaViva === '1') {
+                    return;
+                }
+                contenedor.dataset.busquedaViva = '1';
+                const scope = contenedor.closest('.card') || document.querySelector('main.container') || document.body;
+                let temporizador = null;
+
+                function aplicarFiltro() {
+                    const consulta = normalizarBusqueda(input.value.trim());
+                    const selectCriterio = contenedor.querySelector('select[name="criterio"]');
+                    const criterio = selectCriterio ? selectCriterio.value : 'todos';
+                    let visibles = 0;
+
+                    scope.querySelectorAll('[data-busqueda]').forEach(function(fila) {
+                        let texto = '';
+                        if (criterio === 'nombre') {
+                            texto = fila.dataset.nombre;
+                        } else if (criterio === 'apellido') {
+                            texto = fila.dataset.apellido;
+                        } else if (criterio === 'cedula') {
+                            texto = fila.dataset.cedula;
+                        } else {
+                            texto = fila.dataset.busqueda;
+                        }
+                        const coincide = !consulta || normalizarBusqueda(texto).includes(consulta);
+                        fila.style.display = coincide ? '' : 'none';
+                        if (coincide) {
+                            visibles++;
+                        }
+                    });
+
+                    let aviso = contenedor._avisoSinResultados || null;
+                    if (visibles === 0 && consulta) {
+                        if (!aviso) {
+                            aviso = document.createElement('div');
+                            aviso.className = 'busqueda-sin-resultados';
+                            aviso.innerHTML =
+                                '<div class="icono">🔍</div>' +
+                                '<strong>No se encontraron resultados</strong> para "<span class="busqueda-sin-resultados-q"></span>".<br>' +
+                                '<span class="sugerencia">Intenta con otro nombre, apellido o número de cédula, o revisa la ortografía.</span>';
+                            const referencia = contenedor.closest('.card') || contenedor;
+                            referencia.insertAdjacentElement('afterend', aviso);
+                            contenedor._avisoSinResultados = aviso;
+                        }
+                        aviso.querySelector('.busqueda-sin-resultados-q').textContent = input.value.trim();
+                        aviso.style.display = '';
+                    } else if (aviso) {
+                        aviso.style.display = 'none';
+                    }
+                }
+
+                input.addEventListener('input', function() {
+                    clearTimeout(temporizador);
+                    temporizador = setTimeout(aplicarFiltro, 200);
+                });
+                const selectCriterio = contenedor.querySelector('select[name="criterio"]');
+                if (selectCriterio) {
+                    selectCriterio.addEventListener('change', aplicarFiltro);
+                }
+            });
+        }
+
+        function toastYaMostrado(clave) {
+            try {
+                if (sessionStorage.getItem(clave)) {
+                    return true;
+                }
+                sessionStorage.setItem(clave, '1');
+                return false;
+            } catch (err) {
+                return false;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             initializeInputValidation();
+            inicializarBusquedaEnVivo();
+            precargarVistas();
+            const main = document.querySelector('main.container');
+            if (main) {
+                main.classList.add('vista-cargando');
+            }
             {% if messages %}
                 {% for message in messages %}
-                    showToast('{{ message }}', '{{ message.tags }}');
+                    (function() {
+                        const texto = '{{ message.message|escapejs }}';
+                        const tipo = '{{ message.tags|escapejs }}';
+                        let hash = 0;
+                        const claveTexto = tipo + '|' + texto;
+                        for (let i = 0; i < claveTexto.length; i++) {
+                            hash = ((hash << 5) - hash + claveTexto.charCodeAt(i)) | 0;
+                        }
+                        if (!toastYaMostrado('toast_' + hash)) {
+                            showToast(texto, tipo);
+                        }
+                    })();
                 {% endfor %}
             {% endif %}
         });

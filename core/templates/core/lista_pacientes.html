@@ -9,6 +9,20 @@
     </div>
 
     <div class="card">
+        <form method="GET" class="barra-busqueda">
+            {% include 'core/_busqueda.html' %}
+            <button type="submit" class="btn" style="padding: 10px 20px;">🔍 Buscar</button>
+            {% if q %}
+            <a href="{% url 'lista_pacientes' %}" class="btn btn-danger" style="padding: 10px 20px;">✖ Limpiar</a>
+            {% endif %}
+        </form>
+        {% if q %}
+        <p style="color: #7b1fa2; margin-bottom: 15px;">
+            Resultados para "<strong>{{ q }}</strong>"
+            {% if criterio != 'todos' %}({{ criterio }}){% endif %}:
+            <strong>{{ pacientes|length }}</strong> paciente(s) encontrado(s)
+        </p>
+        {% endif %}
         <div class="table-responsive">
             <table>
                 <thead>
@@ -25,7 +39,10 @@
                 </thead>
                 <tbody>
                     {% for paciente in pacientes %}
-                    <tr>
+                    <tr data-nombre="{{ paciente.nombre }}"
+                        data-apellido="{{ paciente.apellido }}"
+                        data-cedula="{{ paciente.cedula }}"
+                        data-busqueda="{{ paciente.nombre }} {{ paciente.apellido }} {{ paciente.cedula }}">
                         <td>{{ paciente.cedula }}</td>
                         <td class="celda-paciente">
                             <a href="{% url 'detalle_paciente' paciente.id %}" class="enlace-paciente" style="font-weight: bold;">{{ paciente.nombre_completo }}</a>
@@ -46,7 +63,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
+                    <tr data-busqueda="">
                         <td colspan="8" style="text-align: center;">No hay pacientes registrados</td>
                     </tr>
                     {% endfor %}
